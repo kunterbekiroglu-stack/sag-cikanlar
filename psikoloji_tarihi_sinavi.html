@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Psikoloji Tarihi — Doktora Yeterlik Sınavı</title>
+<style>
+  :root {
+    --bg: #f7f4ef;
+    --panel: #ffffff;
+    --ink: #221f1a;
+    --muted: #756f64;
+    --accent: #a8631e;
+    --accent-dark: #874e15;
+    --orta: #2b8a3e;
+    --orta-bg: #e6f6ea;
+    --zor: #c0392b;
+    --zor-bg: #fdecea;
+    --correct: #1e8e3e;
+    --correct-bg: #e6f7ec;
+    --wrong: #d93025;
+    --wrong-bg: #fdeceb;
+    --border: #e9e1d4;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.55;
+  }
+  .wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 28px 20px 80px;
+  }
+  header.hero {
+    text-align: center;
+    padding: 34px 20px 26px;
+    background: linear-gradient(135deg, #a8631e, #d4934a);
+    color: white;
+    border-radius: 18px;
+    margin-bottom: 28px;
+    box-shadow: 0 10px 30px rgba(168,99,30,0.25);
+  }
+  header.hero h1 {
+    margin: 0 0 8px;
+    font-size: 1.7rem;
+    font-weight: 700;
+  }
+  header.hero p {
+    margin: 4px 0;
+    opacity: 0.95;
+    font-size: 0.98rem;
+  }
+  .meta-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 16px;
+  }
+  .pill {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  #progress-container {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--bg);
+    padding: 12px 0 10px;
+  }
+  #progress-bar-bg {
+    background: #ece3d3;
+    border-radius: 999px;
+    height: 10px;
+    overflow: hidden;
+  }
+  #progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #a8631e, #dba86a);
+    width: 0%;
+    transition: width 0.25s ease;
+  }
+  #progress-text {
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .question-card {
+    background: var(--panel);
+    border-radius: 16px;
+    padding: 22px 22px 20px;
+    margin-bottom: 18px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+  }
+  .q-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .q-number {
+    font-weight: 700;
+    color: var(--accent-dark);
+    font-size: 0.95rem;
+  }
+  .badges { display:flex; gap:6px; flex-wrap: wrap; justify-content: flex-end;}
+  .badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .badge.orta { color: var(--orta); background: var(--orta-bg); }
+  .badge.zor { color: var(--zor); background: var(--zor-bg); }
+  .badge.topic { color: var(--muted); background: #f2ede2; }
+  .q-text {
+    font-size: 1.03rem;
+    font-weight: 600;
+    margin: 6px 0 16px;
+    color: var(--ink);
+  }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    background: #fffdfa;
+  }
+  .option:hover:not(.locked) {
+    border-color: var(--accent);
+    background: #fbf1e4;
+  }
+  .option.selected {
+    border-color: var(--accent);
+    background: #f6e8d3;
+  }
+  .option-letter {
+    flex: 0 0 auto;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #ece5d8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.82rem;
+    color: var(--ink);
+  }
+  .option.selected .option-letter {
+    background: var(--accent);
+    color: white;
+  }
+  .option-text { flex: 1; font-size: 0.95rem; padding-top: 3px; }
+  .option.correct-answer {
+    border-color: var(--correct);
+    background: var(--correct-bg);
+  }
+  .option.correct-answer .option-letter {
+    background: var(--correct);
+    color: white;
+  }
+  .option.wrong-answer {
+    border-color: var(--wrong);
+    background: var(--wrong-bg);
+  }
+  .option.wrong-answer .option-letter {
+    background: var(--wrong);
+    color: white;
+  }
+  .option.locked { cursor: default; }
+  .explanation {
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    display: none;
+    animation: fadein 0.3s ease;
+  }
+  .explanation.show { display: block; }
+  .explanation.correct-exp {
+    background: var(--correct-bg);
+    border-left: 4px solid var(--correct);
+    color: #145a28;
+  }
+  .explanation.wrong-exp {
+    background: var(--wrong-bg);
+    border-left: 4px solid var(--wrong);
+    color: #7a1f16;
+  }
+  .explanation b { display:block; margin-bottom: 4px; }
+  @keyframes fadein { from { opacity:0; transform: translateY(-4px);} to {opacity:1; transform: translateY(0);} }
+
+  #submit-area {
+    text-align: center;
+    margin: 30px 0 10px;
+  }
+  #submit-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(168,99,30,0.3);
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  #submit-btn:hover { background: var(--accent-dark); transform: translateY(-1px); }
+  #submit-btn:disabled { background: #e0c39c; cursor: not-allowed; box-shadow:none; }
+
+  #results-panel {
+    display: none;
+    background: linear-gradient(135deg, #221f1a, #4a3d2c);
+    color: white;
+    border-radius: 18px;
+    padding: 30px 26px;
+    text-align: center;
+    margin-bottom: 26px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  }
+  #results-panel.show { display: block; }
+  #results-panel h2 { margin: 0 0 6px; font-size: 1.5rem; }
+  #results-panel .score-big { font-size: 2.6rem; font-weight: 800; margin: 10px 0; }
+  .results-breakdown {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .rb-item { background: rgba(255,255,255,0.1); padding: 10px 18px; border-radius: 12px; min-width: 110px; }
+  .rb-item .num { font-size: 1.3rem; font-weight: 700; }
+  .rb-item .lbl { font-size: 0.78rem; opacity: 0.85; }
+
+  #reset-btn {
+    margin-top: 18px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.4);
+    color: white;
+    padding: 10px 22px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  #reset-btn:hover { background: rgba(255,255,255,0.25); }
+
+  .jump-hint {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 480px) {
+    header.hero h1 { font-size: 1.35rem; }
+    .question-card { padding: 16px 14px; }
+    .q-text { font-size: 0.98rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <h1>Psikoloji Tarihi Sınavı</h1>
+    <p>Psikoloji Doktora Yeterlik Sınavına Hazırlık — Deneme Testi</p>
+    <div class="meta-bar">
+      <span class="pill">50 Soru</span>
+      <span class="pill">20 Orta Zorluk</span>
+      <span class="pill">30 Zor</span>
+      <span class="pill">Açıklamalı Cevap Anahtarı</span>
+    </div>
+  </header>
+
+  <div id="progress-container">
+    <div id="progress-bar-bg"><div id="progress-bar-fill"></div></div>
+    <div id="progress-text">0 / 50 soru cevaplandı</div>
+  </div>
+
+  <p class="jump-hint">Her soruyu cevapladığınızda seçiminiz işaretlenir. Tüm soruları cevapladıktan sonra en alttaki <b>"Sınavı Bitir ve Sonuçları Gör"</b> butonuna basarak doğru cevapları ve açıklamalarını görebilirsiniz.</p>
+
+  <div id="quiz-container"></div>
+
+  <div id="submit-area">
+    <button id="submit-btn">Sınavı Bitir ve Sonuçları Gör</button>
+  </div>
+
+  <div id="results-panel">
+    <h2>Sınav Sonucunuz</h2>
+    <div class="score-big" id="score-big">0 / 50</div>
+    <div id="score-percent" style="font-size:1.1rem; opacity:0.9;"></div>
+    <div class="results-breakdown">
+      <div class="rb-item"><div class="num" id="rb-orta">0/20</div><div class="lbl">Orta Zorluk Doğru</div></div>
+      <div class="rb-item"><div class="num" id="rb-zor">0/30</div><div class="lbl">Zor Doğru</div></div>
+    </div>
+    <button id="reset-btn">Sınavı Yeniden Başlat</button>
+  </div>
+
+</div>
+
+<script>
+const QUESTIONS = [{"difficulty": "orta", "topic": "Psikoloji Tarihine Giriş", "question": "Zeitgeist kavramı ne anlama gelir ve psikoloji tarihinde neyi açıklamak için kullanılır?", "options": ["Bir bilim insanının kişisel dehasını", "Dönemin bilimsel, kültürel, sosyal ve politik koşullarının bütününü; hangi kuramın kabul ya da reddedileceğini belirleyen 'zamanın ruhu'nu", "Yalnızca ekonomik koşulları", "Bir laboratuvarın fiziksel donanımını"], "correct": 1, "explanation": "Zeitgeist, dönemin bilimsel, kültürel, sosyal ve politik koşullarının bütününü, yani 'zamanın ruhu'nu ifade eder. Hangi kuramın kabul ya da reddedileceğini belirler. Darwin ve Wallace'ın eş zamanlı keşifleri, büyük buluşların bireysel dehadan değil hazır zeminden çıktığını gösteren doğal tarih yaklaşımını destekler."}, {"difficulty": "orta", "topic": "Felsefi Temeller", "question": "Locke'un 'tabula rasa' (boş levha) kavramı neyi ifade eder?", "options": ["Zihnin doğuştan belirli fikirlerle donatıldığını", "Zihnin doğuştan boş olduğunu ve tüm bilginin deneyimden geldiğini", "Zihnin bölünemez tek bir bütün olduğunu", "Bilginin yalnızca akıl yürütmeyle elde edildiğini"], "correct": 1, "explanation": "Tabula rasa, Locke'a göre zihnin doğuştan boş bir levha olduğu ve tüm bilginin duyum (dış dünyadan gelen veri) ve yansıma (zihnin kendi işlemlerini gözlemlemesi) yoluyla deneyimden geldiği görüşüdür."}, {"difficulty": "orta", "topic": "Psikofizik", "question": "Weber'in 'JND' (Just Noticeable Difference / Ancak Fark Edilebilir Fark) deneyinin temel bulgusu nedir?", "options": ["Fark edilebilecek en küçük artış miktarının her zaman sabit bir gram değeri olduğu", "Fark edilebilecek en küçük artış miktarının başlangıç uyarıcısının şiddetiyle orantılı (bir oran şeklinde) değiştiği", "İnsanların ağırlık farklarını hiçbir zaman ayırt edemediği", "Zihnin mutlak rakamlarla çalıştığı"], "correct": 1, "explanation": "Weber, fark edilebilecek en küçük artışın (JND) sabit bir miktar değil, başlangıç uyarıcısının şiddetine oranla değiştiğini bulmuştur (örn. 100 gramda 10 gram fark edilirken, 1 kilogramda yaklaşık 100 gram gerekir). Bu, zihnin mutlak değil, oransal çalıştığını gösterir."}, {"difficulty": "orta", "topic": "Psikofizik", "question": "Fechner'in S = K log R formülü neyi ifade eder?", "options": ["Duyumun şiddetinin fiziksel uyarıcının şiddetiyle logaritmik bir ilişki içinde olduğunu", "Sinir iletim hızının sabit olduğunu", "Bellek kapasitesinin sınırlı olduğunu", "Görme keskinliğinin zekayla ilişkili olduğunu"], "correct": 0, "explanation": "Fechner'in formülü (S = K log R), duyumun şiddetinin (S) fiziksel uyarıcının şiddetiyle (R) logaritmik bir ilişki içinde olduğunu gösterir: uyarıcı geometrik (katlanarak) artarken duyum aritmetik (toplanarak) artar. Bu, Weber'in oran ilkesinin matematiksel formülasyonudur."}, {"difficulty": "orta", "topic": "Wundt ve Yeni Psikoloji", "question": "Wundt'un 'voluntarizm' kavramı neyi ifade eder?", "options": ["Zihnin tamamen pasif bir kayıt cihazı gibi çalıştığını", "Zihnin gelen bilgileri sadece kaydetmediğini, dikkat aracılığıyla aktif olarak organize ettiğini", "Davranışın tamamen çevre tarafından belirlendiğini", "Bilinçdışı süreçlerin bilinçli süreçlerden daha güçlü olduğunu"], "correct": 1, "explanation": "Voluntarizm, Wundt'un İngiliz empiristlerine (özellikle James Mill'in pasif zihin görüşüne) karşı geliştirdiği fikirdir: zihin gelen bilgileri sadece kaydetmez, dikkat aracılığıyla aktif olarak organize eder. Zihin pasif bir kap değil, aktif bir yönetmendir."}, {"difficulty": "orta", "topic": "Titchener ve Yapısalcılık", "question": "Titchener'in yapısalcılığında, katılımcıların 'elma gördüm' yerine 'kırmızı gördüm, parlak bir yüzey vardı' şeklinde rapor vermesi gerektiğini vurgulayan kural hangisidir?", "options": ["Appersepsiyon kuralı", "Uyarıcı hatasından kaçınma kuralı", "İzomorfizm kuralı", "Parsimoni ilkesi"], "correct": 1, "explanation": "Uyarıcı hatasından kaçınma, Titchener'in içgözlem yönteminde katılımcıların (miyarların) nesneyi kavramsal olarak tanımlamak yerine (örn. 'elma') o an yaşadıkları saf duyusal deneyimi (örn. 'kırmızı, parlak bir yüzey') raporlamalarını gerektiren kuraldır."}, {"difficulty": "orta", "topic": "İşlevselcilik", "question": "İşlevselcilik ile yapısalcılık arasındaki temel soru farkı nedir?", "options": ["Yapısalcılık 'zihin ne işe yarar?', işlevselcilik 'zihin nelerden oluşur?' sorusunu sorar", "Yapısalcılık 'zihin nelerden oluşur?', işlevselcilik 'zihin ne işe yarar?' sorusunu sorar", "İkisi de aynı soruyu farklı kelimelerle sorar", "İşlevselcilik yalnızca hayvan davranışıyla ilgilenir"], "correct": 1, "explanation": "Yapısalcılar 'zihin nelerden oluşur?' sorusunu sorarken (bilinci elementlerine ayırma), işlevselciler Darwin'in etkisiyle 'zihin ne işe yarar, organizmanın çevreye uyum sağlamasına nasıl yardımcı olur?' sorusunu sormuştur."}, {"difficulty": "orta", "topic": "William James", "question": "William James'in 'bilinç akışı' (stream of consciousness) kavramı neyi savunur?", "options": ["Bilincin duyum, imge ve duygu gibi ayrı elementlere bölünebileceğini", "Zihnin durağan parçalardan değil, sürekli akan, kesintisiz bir süreçten oluştuğunu; parçalara ayırınca anlamını yitirdiğini", "Bilincin yalnızca laboratuvar koşullarında incelenebileceğini", "Bilinç ile bilinçdışının aynı şey olduğunu"], "correct": 1, "explanation": "James, Wundt ve Titchener'ın bilinci duyum, imge ve duygulara ayırma çabasını eleştirmiş; zihnin bir nehir gibi sürekli akan, kesintisiz bir süreç olduğunu, parçalara ayrıldığında (bardaklara bölünen nehir gibi) doğasının bozulduğunu savunmuştur."}, {"difficulty": "orta", "topic": "William James", "question": "James-Lange duygu teorisine göre duygunun oluş sırası nasıldır?", "options": ["Önce duygu hissedilir, sonra bedensel tepki (örn. kaçma) gerçekleşir", "Önce bedensel tepki (örn. kaçma) gerçekleşir, bu tepkinin algılanması duyguyu (korku) yaratır", "Duygu ve bedensel tepki birbirinden tamamen bağımsızdır", "Duygu yalnızca bilişsel değerlendirmeyle oluşur"], "correct": 1, "explanation": "James-Lange teorisine göre geleneksel görüşün aksine önce bedensel tepki gerçekleşir (örn. ayıdan kaçmak), bu bedensel tepkinin fark edilmesi/algılanması duyguyu (korku) yaratır. Yani 'önce beden, sonra duygu' sıralaması söz konusudur."}, {"difficulty": "orta", "topic": "Thorndike", "question": "Thorndike'ın 'etki yasası' (law of effect) neyi ifade eder?", "options": ["Uyarıcı ile tepki arasındaki bağın yalnızca tekrar sayısına bağlı olduğunu", "Tatmin edici sonuç doğuran tepkilerin güçlendiğini, rahatsızlık veren tepkilerin zayıfladığını", "Organizmanın bir tepkiye hazır olup olmadığının önemli olmadığını", "Öğrenmenin yalnızca içgörüyle gerçekleştiğini"], "correct": 1, "explanation": "Etki yasası, Thorndike'ın kedi deneyinden çıkardığı en önemli yasadır: tatmin edici sonuç doğuran tepkiler güçlenir, rahatsızlık veren tepkiler zayıflar. Bu yasa Skinner'ın pekiştirme kavramının doğrudan öncüsüdür."}, {"difficulty": "orta", "topic": "Pavlov", "question": "Pavlov'un klasik koşullanma deneyinde, zil sesi tek başına anlamsız bir uyarıcıyken tekrar tekrar etle eşleştirildikten sonra köpeğin zile karşı da salya salgılamaya başlaması neyi gösterir?", "options": ["Edimsel koşullanmanın gerçekleştiğini", "Koşullu reflekse hiçbir örneğin sunulmadığını", "Nötr bir uyarıcının, koşulsuz uyarıcıyla eşleştirilerek koşullu bir tepkiyi tetikleyebilir hale geldiğini (koşullu refleks)", "İçgörüyle öğrenmenin gerçekleştiğini"], "correct": 2, "explanation": "Pavlov'un deneyinde zil sesi (nötr uyarıcı) tekrar tekrar et tozuyla (koşulsuz uyarıcı) eşleştirilince, köpeğin sinir sistemi bu bağlantıyı öğrenmiş ve zile karşı da salya (koşullu tepki) vermeye başlamıştır. Buna koşullu refleks denir."}, {"difficulty": "orta", "topic": "Davranışçılığın Doğuşu", "question": "Watson'ın 1913 manifestosuna göre psikolojinin konusu ne olmalıdır?", "options": ["Bilinç ve içgözlemle incelenen zihinsel süreçler", "Yalnızca gözlemlenebilir, ölçülebilir ve tekrarlanabilir davranış", "Bilinçdışı çatışmalar ve savunma mekanizmaları", "Kolektif bilinçdışı ve arketipler"], "correct": 1, "explanation": "Watson'a göre psikolojinin konusu bilinç değil davranıştır; amaç davranışı tanımlamak, öngörmek ve kontrol etmektir. Nesnellik, ölçülebilirlik ve tekrarlanabilirlik şarttır. İçgözleme karşı çıkma nedenleri arasında öznellik, tekrarlanamazlık ve bebek/hayvan/hastalara uygulanamaması sayılır."}, {"difficulty": "orta", "topic": "Neodavranışçılık", "question": "Skinner'ın edimsel (operant) koşullanması ile Pavlov'un klasik koşullanması arasındaki temel fark nedir?", "options": ["Klasik koşullanmada organizma aktif ve gönüllü davranışlar gösterirken, edimsel koşullanmada pasiftir", "Klasik koşullanmada organizma pasif ve refleksiftir; edimsel koşullanmada organizma aktiftir ve davranışın sonuçları davranışı şekillendirir", "İkisi arasında hiçbir fark yoktur", "Edimsel koşullanma yalnızca insanlar üzerinde çalışılabilir"], "correct": 1, "explanation": "Klasik koşullanmada organizma pasiftir, refleksif ve otomatik tepkiler verir (uyarıcıya bağlıdır). Edimsel koşullanmada ise organizma aktiftir, gönüllü davranışlar gösterir ve bu davranışların sonuçları (pekiştirme/ceza) davranışı şekillendirir."}, {"difficulty": "orta", "topic": "Gestalt Psikolojisi", "question": "Gestalt psikolojisinin temel tezi olan 'bütün, parçaların toplamından farklıdır' görüşünü en iyi örnekleyen fenomen hangisidir?", "options": ["Peterson & Peterson deneyi", "Phi fenomeni (art arda yanıp sönen iki ışığın hareket algısı yaratması)", "Sternberg'in kısa süreli bellek araması deneyi", "Ebbinghaus'un unutma eğrisi"], "correct": 1, "explanation": "Phi fenomeninde, art arda kısa aralıklarla iki farklı konumda yanıp sönen ışıklar bir hareket algısı yaratır, oysa gerçekte hiçbir hareket yoktur. Bu, Wundt'un atomcu (parçalara ayırma) yaklaşımıyla açıklanamaz; hareket algısı duyumların toplamından değil, bütünsel örgütlenmeden doğar."}, {"difficulty": "orta", "topic": "Gestalt Psikolojisi", "question": "Köhler'in şempanze Sultan ile yaptığı deneyde gözlemlediği ve deneme-yanılmadan farklı olan öğrenme türüne ne ad verilir?", "options": ["Edimsel koşullanma", "İçgörü (insight) yoluyla öğrenme", "Klasik koşullanma", "Gizli öğrenme"], "correct": 1, "explanation": "Sultan adlı şempanze, muza ulaşmak için kutuları üst üste koyup sopa kullanma çözümünü kademeli deneme-yanılma olmadan, durumu bir bütün olarak kavrayarak aniden bulmuştur. Köhler buna içgörü (insight) adını vermiştir; bu, Gestalt'ın 'bütün parçaların toplamından fazladır' tezini destekler."}, {"difficulty": "orta", "topic": "Psikanaliz", "question": "Freud'un yapısal kişilik modelinde 'haz ilkesi'ne göre çalışan ve doğuştan gelen dürtüleri içeren yapı hangisidir?", "options": ["Ego", "Süperego", "İd", "Persona"], "correct": 2, "explanation": "İd, haz ilkesine göre çalışan, doğuştan gelen ilkel dürtüleri (cinsellik, saldırganlık gibi) içeren yapıdır. Ego gerçeklik ilkesine göre çalışır ve id ile dış dünya arasında aracılık eder; süperego ise ahlaki değerleri ve vicdanı temsil eder."}, {"difficulty": "orta", "topic": "Jung", "question": "Jung'un Freud'dan kopmasının temel nedeni neydi?", "options": ["Jung'un içgüdüyü tamamen reddetmesi", "Jung'un libidoyu yalnızca cinsel enerji olarak değil, genel bir hayat enerjisi olarak tanımlaması ve davranışın yalnızca geçmiş değil gelecek hedeflerle de şekillendiğini savunması", "Jung'un davranışçılığı benimsemesi", "Jung'un id, ego, süperego modelini geliştirmesi"], "correct": 1, "explanation": "Jung, Freud'un libidoyu dar bir şekilde cinsel enerji olarak tanımlamasını eleştirmiş, libidoyu genel bir hayat enerjisi olarak yeniden tanımlamıştır. Ayrıca Freud'un davranışın yalnızca geçmiş (çocukluk) tarafından belirlendiği görüşüne karşı, davranışın geleceğe yönelik hedefler tarafından da şekillendiğini savunmuştur."}, {"difficulty": "orta", "topic": "Adler", "question": "Adler'e göre insan davranışını asıl yönlendiren güç nedir?", "options": ["Cinsel dürtü (libido)", "Aşağılık hissi ve buna bağlı üstünlük için çabalama", "Kolektif bilinçdışı", "Koşulsuz olumlu kabul"], "correct": 1, "explanation": "Adler'e göre insanı yönlendiren asıl güç cinsel dürtü değil, aşağılık hissidir. Her insan bebeklikte çaresiz doğar, bu evrensel bir aşağılık hissi yaratır ve bu his üstünlük için çabalamayı (eksiksiz olmak, gelişmek, başarmak) tetikler."}, {"difficulty": "orta", "topic": "Hümanistik Psikoloji", "question": "Maslow'un ihtiyaçlar hiyerarşisinde en üstte yer alan ihtiyaç hangisidir?", "options": ["Fizyolojik ihtiyaçlar", "Güvenlik ihtiyacı", "Kendini gerçekleştirme", "Ait olma/sevgi ihtiyacı"], "correct": 2, "explanation": "Maslow'un ihtiyaçlar hiyerarşisi fizyolojik ihtiyaçlardan başlayıp güvenlik, ait olma/sevgi, saygı ve en üstte kendini gerçekleştirmeye doğru ilerler. Maslow'a göre kendini gerçekleştirmiş insanlar nüfusun %1'inden azını oluşturur."}, {"difficulty": "orta", "topic": "Bilişsel Devrim", "question": "Neisser'in 1967'de yazdığı 'Bilişsel Psikoloji' kitabı, bilişsel devrimi başlatan üç kırılmayı bir araya getirmiştir. Bu üç kırılma nelerdir?", "options": ["Freud'un psikanalizi, Adler'in bireysel psikolojisi ve Jung'un analitik psikolojisi", "Davranışçılığın kendi içinden gelen çöküş (Tolman, Miller, Chomsky), bilgisayarın girdi-işleme-çıktı modeli, ve kuantum fiziğinin gözlemcinin rolünü göstermesi", "Yalnızca Gestalt psikolojisinin etkisi", "Yalnızca Wundt'un laboratuvar yönteminin başarısızlığı"], "correct": 1, "explanation": "Bilişsel devrimi tetikleyen üç kırılma: (1) davranışçılığın kendi içinden gelen çöküş - Tolman'ın gizli öğrenmesi, Miller'ın kısa süreli bellek kapasitesi bulgusu, Chomsky'nin dil eleştirisi; (2) bilgisayarın (ENIAC) girdi-işleme-çıktı modelinin zihne bir metafor sunması; (3) kuantum fiziğinin gözlemcinin ölçümü etkilediğini göstermesiyle zihnin bilimden dışlanamayacağının anlaşılması."}, {"difficulty": "zor", "topic": "Ampirizm", "question": "Berkeley'in Locke'un birincil-ikincil nitelik ayrımına yönelttiği eleştiri neye dayanır?", "options": ["Birincil niteliklerin (şekil, büyüklük) her zaman nesnede sabit ve algıdan bağımsız olduğuna", "Uzaktan küçük görünen bir kulenin yakından büyük görünmesi gibi örneklerle, 'nesnede gerçekten var' denilen birincil niteliklerin de aslında algıya bağlı olduğunu; bu nedenle nesne algılandığı ölçüde gerçektir", "İkincil niteliklerin (renk, tat) nesnede gerçekten var olduğuna", "Duyum ve yansımanın birbirinden tamamen bağımsız olduğuna"], "correct": 1, "explanation": "Berkeley, Locke'un nesnede gerçekten var olduğunu iddia ettiği birincil nitelikleri (şekil, büyüklük, hareket) bile algıya bağlı olduğunu göstermiştir: uzaktan küçük görünen bir kule yakından büyük görünür, hangi şeklin 'gerçek' olduğunu yine algı belirler. Bu nedenle birincil ve ikincil nitelik arasında gerçek bir sınır yoktur; nesne yalnızca algılandığı ölçüde gerçektir."}, {"difficulty": "zor", "topic": "Çağrışımcılık", "question": "Hartley'in çağrışımcılık anlayışının Hume'dan farkı nedir?", "options": ["Hartley çağrışımı tamamen reddetmiştir", "Hartley çağrışımı felsefi düzeyden fizyolojik düzeye taşımış, fikirler arasındaki bağlantının sinirlerdeki titreşimlerin birbirini tetiklemesiyle gerçekleştiğini öne sürmüştür", "Hartley yalnızca neden-sonuç ilişkisini kabul etmiştir", "Hartley'in görüşü James Mill'in görüşüyle aynıdır"], "correct": 1, "explanation": "Hume, fikirler arasında benzerlik, yakınlık ve neden-sonuç olmak üzere üç tür bağlantı olduğunu söylemiştir. Hartley ise bir adım ileri giderek bu bağlantıların beyinde fiziksel olarak sinirlerin titreşimi yoluyla gerçekleştiğini öne sürmüş, çağrışımı felsefeden koparıp fizyolojiye taşımıştır. Bu, psikolojinin ileride nörobilimle buluşacağının ilk işaretidir."}, {"difficulty": "zor", "topic": "Çağrışımcılık", "question": "James Mill ile oğlu John Stuart Mill'in çağrışımcılık görüşleri arasındaki temel fark nedir?", "options": ["James Mill zihnin aktif olduğunu, J.S. Mill ise pasif olduğunu savunmuştur", "James Mill'e göre fikirler mekanik parçalar gibi yan yana dizilir ve zihin pasiftir; J.S. Mill'e göre ise fikirler birleştiğinde (kimyadaki hidrojen-oksijen-su örneğinde olduğu gibi) parçaların toplamından farklı, tamamen yeni bir şey ortaya çıkar", "İkisi de aynı görüşü savunmuştur", "J.S. Mill çağrışımcılığı tamamen reddetmiştir"], "correct": 1, "explanation": "James Mill'e göre zihin tamamen pasiftir; fikirler mekanik parçalar gibi yan yana dizilir, bunun ötesinde yeni bir şey oluşmaz ('zihinsel kimya' yoktur). Oğlu John Stuart Mill ise buna itiraz ederek, hidrojen ve oksijenin birleşip sudan tamamen farklı bir şey (su) oluşturması gibi, fikirlerin birleşiminin de parçaların toplamından fazla yeni bir şey yarattığını savunmuştur; zihin bu birleşimi aktif olarak yapar."}, {"difficulty": "zor", "topic": "Fizyolojik Etkiler", "question": "Bessel'in astronomideki 'kişisel denklem' keşfinin psikoloji tarihi açısından önemi nedir?", "options": ["Sinir iletim hızının ölçülebileceğini kanıtlamıştır", "Farklı gözlemcilerin aynı olayı farklı zamanlarda algılamasının, algının öznel olduğunu ve bunun ölçülebilir/sistematik bir fark olduğunu göstererek Locke/Berkeley'in görüşünü desteklemiştir", "Frenolojinin doğru olduğunu kanıtlamıştır", "Beyin lokalizasyonunu ilk kez göstermiştir"], "correct": 1, "explanation": "Bessel, farklı gözlemciler arasındaki sistematik algı farklılıklarını ('kişisel denklem') keşfederek algının öznelliğini bilimsel olarak kanıtlamış, bu da Locke ve Berkeley'in algının öznel/zihne bağlı olduğu görüşünü destekleyen deneysel bir kanıt sağlamıştır."}, {"difficulty": "zor", "topic": "Wundt ve Yeni Psikoloji", "question": "Wundt'un laboratuvar psikolojisinin, dil, mitoloji, ahlak ve din gibi 'yüksek zihinsel süreçleri' incelemeye uygun olmadığını düşünmesinin nedeni neydi ve bu konuda ne yapmıştır?", "options": ["Bu süreçlerin bireysel zihinlerde değil insanlar arası kültürel etkileşimde ortaya çıktığını düşünmüş, bu yüzden on ciltlik bir kültürel psikoloji eseri yazarak tarihsel ve antropolojik yöntemler kullanmıştır", "Bu süreçlerin var olmadığını düşünmüştür", "Bu konuları tamamen Titchener'a bırakmıştır", "Bu süreçleri de aynı içgözlem deneyleriyle incelemiştir"], "correct": 0, "explanation": "Wundt'a göre laboratuvar yalnızca alt düzey süreçleri (duyum, algı) inceleyebilirdi; yüksek zihinsel süreçler (dil, mitoloji, ahlak, din) bireysel zihinlerde değil kültürel etkileşimde ortaya çıktığından laboratuvarda ölçülemezdi. Bu yüzden hayatının son döneminde on ciltlik bir kültürel psikoloji eseri yazarak tarihsel analiz ve antropolojik gözlem kullanmıştır. Ancak bu boyut, Titchener'ın çevirilerinde dışarıda bırakıldığı için Amerika'ya hiç ulaşmamıştır."}, {"difficulty": "zor", "topic": "Titchener ve Yapısalcılık", "question": "Titchener'in katılımcılarına 'denek' yerine 'miyar' demesinin altında yatan felsefi tercih nedir?", "options": ["Katılımcıları özne değil, bilinç verisi üreten bir araç/reaktif madde olarak görmesi; bu da psikolojiyi doğa bilimi gibi kurma çabasının yansımasıdır", "Katılımcılara saygı göstermek istemesi", "Kimyasal deneyler yaptığı için", "Miyar kelimesinin daha kısa olması"], "correct": 0, "explanation": "Titchener, kimyadan ödünç aldığı 'miyar' (reaktif madde) terimini kullanarak katılımcıları özne değil, bilinç verisi üreten bir araç olarak konumlandırmıştır. Bu, onun psikolojiyi tıpkı kimya gibi katı, nesnel bir doğa bilimi olarak kurma çabasının bir yansımasıdır."}, {"difficulty": "zor", "topic": "Darwin'in Psikolojiye Etkisi", "question": "Darwin'in evrim kuramının psikolojiye etkisiyle ilgili olarak, 'insan ve hayvan arasındaki süreklilik' fikrinin doğurduğu en önemli sonuç hangisidir?", "options": ["Psikolojinin yalnızca insan bilinci ile ilgilenmesi gerektiği görüşünün güçlenmesi", "Hayvanları inceleyerek insan davranışı hakkında bilgi edinilebileceği düşüncesinin doğması; bu sayede Pavlov köpeklerle, Thorndike kedilerle, Watson farelerle çalışabilmiştir", "Frenolojinin bilimsel olarak kanıtlanması", "İçgözlem yönteminin daha da güçlenmesi"], "correct": 1, "explanation": "Darwin, insan ile hayvan arasındaki keskin sınırı ortadan kaldırarak insanın da evrimsel sürecin bir ürünü olduğunu göstermiştir. Bu, hayvanları inceleyerek insan davranışı hakkında bilgi edinilebileceği fikrini doğurmuş ve Pavlov, Thorndike, Watson gibi araştırmacıların hayvanlarla çalışmasının önünü açmıştır."}, {"difficulty": "zor", "topic": "Galton", "question": "Galton'ın 'zekâ kalıtsaldır ve duyusal keskinlikle ölçülebilir' tezinin Cattell tarafından çürütülmesinin nedeni nedir?", "options": ["Cattell'in duyusal testlerin (görme keskinliği, tepki süresi) akademik başarıyla hiçbir ilişkisi olmadığını göstermesi", "Cattell'in Galton'ın istatistiksel yöntemlerini (korelasyon, regresyon) reddetmesi", "Cattell'in öjeni fikrini desteklemesi", "Cattell'in soy ağacı yönteminin doğru olduğunu kanıtlaması"], "correct": 0, "explanation": "Cattell, Galton'ın duyusal testlerini (görme keskinliği, işitme hassasiyeti, tepki süresi) binlerce kişiye uygulamış ve bu testlerin akademik başarıyla hiçbir ilişkisi olmadığını göstermiştir; yani keskin görme veya hızlı tepki süresi zekâyı ölçmemektedir. Ayrıca Galton'ın soy ağacı yönteminin, üstün yetenekli ailelerin aynı zamanda zengin ve eğitimli olmasını göz ardı ettiği için metodolojik olarak sorunlu olduğu da eleştirilmiştir."}, {"difficulty": "zor", "topic": "Sosyal Darwinizm", "question": "Herbert Spencer'ın sosyal Darwinizm görüşüne göre, devletin yoksullara yardım etmesi neden topluma zarar verir?", "options": ["Çünkü yardım devletin bütçesini zorlar", "Çünkü normalde doğal seçilimle elenecek olan zayıf bireyler devlet desteğiyle ayakta tutulur, çoğalır ve zayıf özelliklerini sonraki nesle aktararak toplumu güçlendirmek yerine zayıflatır", "Çünkü yoksullar zaten yardımı hak etmez", "Çünkü yardım ekonomik büyümeyi hızlandırır"], "correct": 1, "explanation": "Spencer'a göre doğal seçilim, zayıf olanın elenip güçlü olanın hayatta kalmasıyla toplumu ilerletir. Devlet yardımı bu doğal seçilimi engeller: normalde hayatta kalamayacak zayıf bireyler devlet desteğiyle ayakta tutulur, çoğalır ve zayıf özelliklerini aktararak toplumu güçlendirmek yerine zayıflatır. Bu görüş laissez-faire (bırakınız yapsınlar) ilkesini savunur."}, {"difficulty": "zor", "topic": "William James", "question": "William James'in benlik kuramında 'sosyal benlik' kavramıyla ilgili ilginç iddiası nedir?", "options": ["Sosyal benliğin bedenden ve sahip olunan eşyalardan oluştuğu", "Kişinin tanıdığı her insan kadar farklı sosyal benliğe sahip olduğu; annenin yanındaki benlik ile işyerindeki benliğin aynı kişi olmadığı", "Sosyal benliğin en derin ve en kalıcı benlik türü olduğu", "Sosyal benliğin doğuştan sabit olduğu"], "correct": 1, "explanation": "James'e göre sosyal benlik başkalarının gözündeki kimliktir ve kişi, tanıdığı her insan kadar farklı sosyal benliğe sahiptir; annenin yanındaki 'sen' ile işyerindeki 'sen' aynı kişi değildir. En derin ve kalıcı olan ise tinsel benliktir (değerler, vicdan, düşünce tarzı)."}, {"difficulty": "zor", "topic": "G. Stanley Hall", "question": "G. Stanley Hall'un 'recapitulation' (yinelenme) teorisine göre bireysel gelişim neyi tekrarlar?", "options": ["Bireyin kendi geçmiş deneyimlerini", "Türün evrimsel geçmişini (ontogeni filojeniyi tekrarlar); örneğin çocukların grup oyunlarındaki hiyerarşi öğrenmesi, avcı-toplayıcı dönemin toplumsal yapısını yansıtır", "Yalnızca ebeveynlerin davranışlarını", "Toplumsal sınıf farklılıklarını"], "correct": 1, "explanation": "Hall'un yinelenme (recapitulation) teorisine göre her bireyin gelişim evreleri türün evrimsel geçmişini tekrarlar; yani ontogeni (bireysel gelişim) filojeniyi (türün evrimsel gelişimi) tekrarlar. Örneğin çocukların grup oyunlarında hiyerarşi ve liderlik öğrenmesi, insan türünün avcı-toplayıcı dönemlerindeki toplumsal yapıyı yansıtır. Bu teori bugün büyük ölçüde terk edilmiştir."}, {"difficulty": "zor", "topic": "Uygulamalı Psikoloji", "question": "Binet'nin zekâ testi yaklaşımı ile Cattell/Galton çizgisinin zekâ anlayışı arasındaki temel fark nedir?", "options": ["Binet zekâyı doğuştan sabit ve tek boyutlu, Cattell/Galton ise gelişime açık ve çok boyutlu görmüştür", "Binet zekâyı gelişime açık, çok boyutlu ve pedagojik bir çerçevede ele alırken, Cattell/Galton çizgisi zekâyı doğuştan gelen, ölçülebilir duyusal kapasite olarak görmüştür", "İkisi de zekayı aynı şekilde tanımlamıştır", "Binet zekâ testini askeri sınıflandırma için geliştirmiştir"], "correct": 1, "explanation": "Binet, zekâyı tek boyutlu ve doğuştan sabit görmemiş; gelişime açık, çok boyutlu ve pedagojik bir çerçevede (hangi çocukların özel eğitime ihtiyacı olduğunu belirlemek için) ele almıştır. Cattell/Galton çizgisi ise zekâyı doğuştan gelen, duyusal keskinlik ve tepki süresi gibi ölçümlerle test edilebilen fizyolojik bir kapasite olarak görmüştür."}, {"difficulty": "zor", "topic": "Uygulamalı Psikoloji", "question": "1. Dünya Savaşı sırasında geliştirilen Army Alpha ve Army Beta testleri arasındaki fark nedir?", "options": ["Army Alpha okuma yazma bilen askerler için sözel bir testti; Army Beta okuma yazma bilmeyenler ve göçmenler için şekil/resim tabanlıydı", "Army Alpha sadece subaylar için, Army Beta sadece erler içindi", "İkisi de aynı içeriğe sahipti, sadece isimleri farklıydı", "Army Beta daha sonra MMPI'a dönüştürülmüştür"], "correct": 0, "explanation": "Army Alpha, okuma yazma bilen askerler için geliştirilmiş sözel bir testti. Army Beta ise okuma yazma bilmeyenler ve göçmenler için şekil ve resim tabanlı olarak tasarlanmıştı. Bu testler milyonlarca askere uygulanarak 'kitlesel psikometri'nin doğuşunu sağlamıştır."}, {"difficulty": "zor", "topic": "Klinik Psikoloji Öncüleri", "question": "Witmer ve Münsterberg'in klinik psikolojiye yaklaşımları arasındaki temel fark nedir?", "options": ["Witmer klinik psikolojiyi bilimsel ölçüm/test/deney temelli bir laboratuvar bilimi olarak görürken, Münsterberg pratiğe, tedaviye ve vaka çalışmalarına odaklanmıştır", "Witmer yalnızca tedaviyle, Münsterberg yalnızca ölçümle ilgilenmiştir", "İkisi de aynı yaklaşımı benimsemiştir", "Witmer psikanaliz taraftarıydı"], "correct": 0, "explanation": "Witmer, klinik psikolojiyi bilimsel ölçüm ve deney temelli bir laboratuvar bilimi olarak görmüş; klinisyenin önce nesnel veri toplaması gerektiğini savunmuştur. Münsterberg ise pratiğe odaklanmış, klinik psikolojinin asıl işinin insanları tedavi etmek olduğunu savunarak vaka çalışmaları ve terapötik uygulamalarla ilgilenmiştir. İkisi birlikte klinik psikolojiye bilimsel ölçüm ve uygulama/tedavi boyutlarını kazandırmıştır."}, {"difficulty": "zor", "topic": "Hayvan Psikolojisi", "question": "Morgan'ın 'bilimsel parsimoni' (sadelik) ilkesi hayvan psikolojisine hangi katkıyı sağlamıştır?", "options": ["Hayvanlara her zaman insan düzeyinde zihinsel süreçler atfedilmesi gerektiğini savunarak", "Eğer bir davranış basit bir mekanizmayla açıklanabiliyorsa karmaşık zihinsel süreçlere başvurulmaması gerektiğini savunarak hayvan psikolojisini spekülasyondan kurtarmıştır", "Romanes'in antropomorfik yaklaşımını güçlendirerek", "Frenolojiyi bilimsel olarak desteklyerek"], "correct": 1, "explanation": "Morgan'ın kanonu (bilimsel parsimoni), Romanes'in antropomorfik yaklaşımına (hayvanlara insan gibi düşünme yetisi atfetme) bir yanıt olarak geliştirilmiştir: eğer bir davranış basit bir mekanizmayla (örn. deneme-yanılma) açıklanabiliyorsa, karmaşık zihinsel süreçlere başvurmaya gerek yoktur. Bu ilke hayvan psikolojisini spekülasyondan kurtarıp bilimsel zemine oturtmuş ve davranışçılığın metodolojik temellerinden biri olmuştur."}, {"difficulty": "zor", "topic": "Neodavranışçılık - Tolman", "question": "Tolman'ın fare labirenti deneyinde, hiç ödül almayan birinci gruba sonradan ödül verilmeye başlandığında performanslarının aniden ikinci grubu geçmesi neyi kanıtlar?", "options": ["Farelerin ödül olmadan hiçbir şey öğrenmediğini", "Farelerin ödül almadan da 'gizli öğrenme' yoluyla zihinsel bir harita (bilişsel harita) oluşturduğunu; bu öğrenmenin davranışa yalnızca pekiştirme geldiğinde yansıdığını", "Klasik koşullanmanın edimsel koşullanmadan daha güçlü olduğunu", "Watson'ın S-R modelinin doğru olduğunu"], "correct": 1, "explanation": "Bu bulgu, Watson'ın katı S-R (uyarıcı-tepki) anlayışıyla açıklanamaz. Tolman, farelerin ödül almadan labirenti gezerken zihinlerinde bir 'bilişsel harita' oluşturduğunu ve bu öğrenmenin gizli kaldığını (gizli öğrenme), ödül gelince bu haritayı kullanarak performanslarını aniden artırdıklarını göstermiştir. Bu, davranışçılığın içinden gelen ve bilişsel psikolojiye zemin hazırlayan önemli bir bulgudur."}, {"difficulty": "zor", "topic": "Neodavranışçılık - Hull", "question": "Hull'un 'hipotetik tümdengelim yöntemi' ve dürtü/pekiştireç ayrımı (birincil-ikincil) neyi ifade eder ve sistemine yönelik en büyük eleştiri nedir?", "options": ["Önce genel bir kuram kurup bundan özel tahminler türeterek deneyle test etme yöntemidir; dürtüler (açlık gibi doğuştan/öğrenilmiş) ve pekiştireçler (yiyecek gibi doğuştan/para gibi öğrenilmiş) ikiye ayrılır. Eleştiri: sistemi aşırı mekanik bulunmuş, amaçlılığı ve zihinsel planlamayı görmezden geldiği ve değişkenlerinin ölçülmesinin zor olduğu belirtilmiştir", "Hull'un yöntemi tamamen deneysel olmayıp felsefi spekülasyona dayanıyordu", "Hull dürtü kavramını hiç kullanmamıştır", "Hull'un sistemi Skinner'ın radikal davranışçılığıyla aynıdır"], "correct": 0, "explanation": "Hull'un hipotetik tümdengelim yöntemi, önce genel bir kuram kurup bu kuramdan özel tahminler türeterek deneyle test etmeye dayanır. Davranışı dürtü (birincil: açlık/susuzluk, ikincil: öğrenilmiş) ve pekiştireç (birincil: yiyecek/su, ikincil: para/övgü) değişkenleriyle açıklamıştır. Ancak sistemi aşırı mekanik bulunmuş; amaçlılığı ve zihinsel planlamayı görmezden geldiği, değişkenlerinin ölçülmesinin de çok zor olduğu eleştirilmiştir."}, {"difficulty": "zor", "topic": "Neodavranışçılık - Skinner", "question": "Skinner Kutusu deneyinde, sıçanın kola basma davranışının zamanla artmasının temel mekanizması nedir ve bu, Pavlov'un klasik koşullanmasından nasıl ayrılır?", "options": ["Sıçan bir uyarıcıya refleksif olarak tepki vermiştir; klasik koşullanmayla aynıdır", "Sıçan davranışını bir uyarıcıya tepki olarak değil, sonucuna (yiyecek çıkması) göre şekillendirmiştir; klasik koşullanmada organizma pasif ve refleksifken, edimsel koşullanmada organizma aktiftir ve davranışın sonuçları davranışı şekillendirir", "Sıçan içgörü yoluyla öğrenmiştir", "Sıçanın davranışı tamamen rastgeledir ve hiçbir öğrenme gerçekleşmemiştir"], "correct": 1, "explanation": "Skinner Kutusunda sıçan kola bastığında yiyecek çıkmıştır; davranış refleksif bir tepki değil, sonucuna göre şekillenen gönüllü bir davranıştır (edimsel koşullanma). Klasik koşullanmada organizma pasiftir ve refleksif tepkiler verir; edimsel koşullanmada ise organizma aktiftir, davranışın sonuçları (pekiştirme/ceza) davranışı güçlendirir veya zayıflatır."}, {"difficulty": "zor", "topic": "Gestalt - Wertheimer", "question": "Wertheimer'in 'üretici düşünme' (productive thinking) kavramı, mekanik ezberden nasıl ayrılır ve bu görüşün eğitime etkisi nedir?", "options": ["Üretici düşünme, formülü ezberlemek yerine şeklin mantığını/yapısını kavramaktır; bu sayede öğrenilen bilgi hiç görülmemiş yeni durumlara da uygulanabilir. Bu görüş yapılandırmacı eğitim anlayışının temelini oluşturur", "Üretici düşünme yalnızca matematik problemleri için geçerlidir", "Üretici düşünme, deneme-yanılma yoluyla öğrenmenin başka bir adıdır", "Üretici düşünme davranışçı pekiştirme ilkesine dayanır"], "correct": 0, "explanation": "Wertheimer'a göre bir öğrenci dikdörtgenin alanını 'uzunluk çarpı genişlik' olarak ezberlerse bu mekanik bir öğrenmedir; ama şeklin mantığını kavrarsa bu bilgiyi hiç görmediği şekillere de uygulayabilir. Buna üretici düşünme denir. Problem bütün olarak yeniden örgütlendiğinde (farklı bir gözle bakıldığında) içgörü oluşur ve gerçek anlama gerçekleşir. Bu fikir bugün yapılandırmacı eğitim anlayışının temelini oluşturur."}, {"difficulty": "zor", "topic": "Gestalt - Lewin", "question": "Lewin'in B = f(K, Ç) formülü neyi ifade eder ve 'sosyal eylem araştırması' kavramıyla nasıl ilişkilidir?", "options": ["Davranışın (B) yalnızca kişinin (K) genetik yapısına bağlı olduğunu ifade eder", "Davranışın (B), kişi (K) ile çevrenin (Ç) etkileşiminin bir fonksiyonu olduğunu ifade eder; sosyal eylem araştırması ise bir sorunu bilimsel olarak incelerken aynı zamanda çözüm üretmeyi hedefleyen, araştırma ile uygulamayı birleştiren bir yaklaşımdır", "Davranışın tamamen çevre tarafından belirlendiğini ve kişinin hiçbir rolü olmadığını ifade eder", "Bu formül yalnızca hayvan davranışları için geçerlidir"], "correct": 1, "explanation": "Lewin'in B = f(K, Ç) formülü, davranışın (Behavior) kişi (Kişi) ile çevrenin (Çevre) etkileşiminin bir ürünü olduğunu ifade eder; alan fiziğindeki elektromanyetik alan kavramından esinlenmiştir. Lewin'in geliştirdiği sosyal eylem araştırması ise bir sorunu bilimsel olarak incelerken aynı zamanda pratik bir çözüm üretmeyi hedefleyen, araştırma ile uygulamayı birleştiren bir yaklaşımdır ve bugün örgütsel/toplum psikolojisinin temelini oluşturur."}, {"difficulty": "zor", "topic": "Gestalt Psikolojisi", "question": "İzomorfizm kavramı Gestalt psikolojisinde neyi açıklar?", "options": ["Beynin tamamen işlevsiz bölgelerinin olduğunu", "Algısal deneyimin yapısı ile beyindeki sinirsel örüntülerin yapısının birbirine benzediğini; zihinde bütün olarak algılanan şeyin beyinde de bütünsel bir sinir örüntüsü olarak temsil edildiğini", "Zihin ile bedenin tamamen ayrı ve bağımsız olduğunu (Descartes dualizmi)", "Öğrenmenin yalnızca pekiştirmeyle gerçekleştiğini"], "correct": 1, "explanation": "İzomorfizm, Gestalt'ın zihin ve beyin arasında kurduğu ilişkiyi açıklayan kavramdır: algısal deneyimin yapısı ile beyindeki sinirsel örüntülerin yapısı birbirine benzer (paraleldir). Zihinde bir bütün olarak algılanan şey, beyinde de bütünsel bir sinir örüntüsü olarak temsil edilir. Bu fikir modern bilişsel nörobilimin öncüsü sayılabilir."}, {"difficulty": "zor", "topic": "Psikanaliz - Freud", "question": "Freud'un devrimini 'Kopernik ve Darwin'den sonraki üçüncü büyük zihinsel devrim' olarak konumlandıran mantık nedir?", "options": ["Kopernik dünyanın evrenin merkezi olmadığını, Darwin insanın hayvandan temelden farklı olmadığını göstermiştir; Freud ise insanın yalnızca bilinç tarafından yönetilmediğini, bilinçdışının davranışı belirlediğini göstererek insanın kendi zihni üzerindeki 'merkezi konumunu' da sarsmıştır", "Freud'un teorisi Kopernik ve Darwin'in teorileriyle doğrudan bilimsel olarak aynı yöntemi kullanmıştır", "Freud, Kopernik ve Darwin'in teorilerini tamamen reddetmiştir", "Bu üç isim aynı dönemde yaşamıştır"], "correct": 0, "explanation": "Bu üçlü, insanın kendi hakkındaki 'merkezi' ve 'üstün' konumunu art arda sarsan üç büyük darbe olarak yorumlanır: Kopernik dünyanın evrenin merkezi olmadığını (insan uzayda merkezi değil), Darwin insanın hayvanlardan temelden farklı olmadığını (insan biyolojik olarak özel değil), Freud ise insanın kendi davranışlarının efendisi olmadığını, bilinçdışı güçler tarafından yönetildiğini göstermiştir (insan kendi zihninde bile merkezi/hakim değil)."}, {"difficulty": "zor", "topic": "Psikanalize Eleştiriler", "question": "Psikanalize yöneltilen 'genellenebilirlik' eleştirisinin dayanağı nedir?", "options": ["Freud'un teorilerinin laboratuvar deneyleriyle geliştirilmiş olması", "Freud'un teorisinin büyük ölçüde yalnızca Viyana'daki nörotik (üst-orta sınıf) kadın hastalar üzerindeki gözlemlere dayanması ve bu dar örneklemden evrensel iddialar çıkarılması", "Freud'un teorisinin hiçbir klinik gözleme dayanmaması", "Freud'un teorisinin yalnızca erkekler üzerinde geliştirilmiş olması"], "correct": 1, "explanation": "Psikanalize yöneltilen genellenebilirlik eleştirisi, Freud'un teorisinin büyük ölçüde Viyana'daki belirli bir sosyoekonomik gruptan (üst-orta sınıf) nörotik kadın hastalar üzerindeki klinik gözlemlere dayanmasına rağmen, bu dar örneklemden tüm insanlık için evrensel iddialar (Ödip karmaşası gibi) çıkarılmasına dayanır."}, {"difficulty": "zor", "topic": "Nesne İlişkileri Kuramı", "question": "Klein'ın nesne ilişkileri kuramında, bebeğin anne memesini 'iyi' ya da 'kötü' olarak şablonlaması ne anlama gelir ve bu Freud'un nesne kavramından nasıl farklıdır?", "options": ["Freud'da nesne, içgüdüyü tatmin eden kişi/şey anlamına gelirken; Klein ve nesne ilişkileri kuramcılarına göre asıl önemli olan içgüdünün tatmini değil, o nesneyle kurulan ilişkinin kalitesidir ve bu şablonlama zamanla tüm insanlara genellenerek yetişkin kişiliğinin temelini oluşturur", "Freud ve Klein'ın nesne kavramları birebir aynıdır", "Klein'a göre bebeğin anne ile ilişkisi kişilik gelişiminde hiçbir rol oynamaz", "Klein biyolojik dürtülerin sosyal/çevresel güçlerden daha önemli olduğunu savunmuştur"], "correct": 0, "explanation": "Freud'da nesne kavramı içgüdüyü tatmin eden kişi/şey anlamına gelirken, nesne ilişkileri kuramcıları (Klein dahil) bunu tersine çevirmiştir: asıl önemli olan içgüdünün tatmini değil, o nesnelerle kurulan ilişkinin kalitesidir. Klein'a göre bebek anne memesini ihtiyacını karşılayıp karşılamadığına göre iyi/kötü şablonlar ve bu şablonu zamanla tüm insanlara genelleyerek yetişkin kişiliğinin temelini oluşturur; ilk altı ay bu açıdan kritiktir."}, {"difficulty": "zor", "topic": "Kohut", "question": "Kohut'un 'kendilik nesneleri' (selfobjects) kavramına göre, annenin çocuğa 'ayna işlevi' görmesi neden önemlidir?", "options": ["Çünkü anne yalnızca fiziksel ihtiyaçları karşılayan biri değil, çocuğun eşsizliğini ve değerini yansıtarak çocuğun psikolojik dünyasını (gurur, özgüven ya da utanç, suçluluk) şekillendiren bir kendilik nesnesidir", "Çünkü anne çocuğun tüm davranışlarını taklit etmelidir", "Çünkü bu kavram yalnızca fiziksel bakımla ilgilidir", "Çünkü Kohut'a göre annenin rolü kişilik gelişiminde önemsizdir"], "correct": 0, "explanation": "Kohut'a göre sağlıklı bir çekirdek benlik gelişebilmesi için annenin çocuğa ayna işlevi görmesi gerekir: anne çocuğun eşsizliğini ve değerini yansıtırsa çocuk gurur ve özgüven geliştirir, ama çocuğu değersiz hissettirirse utanç ve suçluluk yerleşir. Anne, yalnızca fiziksel ihtiyaçları karşılayan biri değil, çocuğun psikolojik dünyasını şekillendiren bir 'kendilik nesnesi'dir."}, {"difficulty": "zor", "topic": "Karen Horney", "question": "Karen Horney'in 'temel anksiyete' kavramı Freud'un anksiyete anlayışından nasıl ayrılır?", "options": ["Horney'e göre temel anksiyete doğuştan gelen biyolojik bir güdüdür", "Horney'e göre temel anksiyete, çocuğun düşmanca bir ortamda izole edilmiş ve yardımsız kalması duygusudur; doğuştan değil sosyal-çevresel bir üründür (Freud'un biyolojik/içgüdüsel anksiyete görüşünden farklıdır)", "Horney anksiyete kavramını tamamen reddetmiştir", "Horney'e göre anksiyete yalnızca erkeklerde görülür"], "correct": 1, "explanation": "Horney'in temel anksiyete kavramı, çocuğun düşmanca bir dünyada izole edilmiş ve yardımsız kalması duygusu olarak tanımlanır ve bu doğuştan değil, sosyal-çevresel bir üründür. Bu, Freud'un anksiyeteyi daha çok içgüdüsel/biyolojik çatışmalara (id-ego-süperego) bağlayan görüşünden ayrılır; Horney sosyal ve kültürel faktörlere ağırlık vermiştir."}, {"difficulty": "zor", "topic": "Karen Horney", "question": "Nörotik ihtiyaçlara karşı Horney'in tanımladığı üç başa çıkma stratejisi (insanlara yönelik, insanlardan ayrı, insanlara karşı) neden 'gerçekçi' bir çözüm sağlamaz?", "options": ["Çünkü bu stratejiler bilinçli olarak seçilir", "Çünkü her biri aşırı ve tek yönlü bir tepki biçimidir (aşırı itaat, aşırı bağımsızlık, aşırı saldırganlık) ve gerçek ihtiyacı çözmek yerine yeni çatışmalar üretir", "Çünkü bu stratejiler yalnızca çocuklarda görülür", "Çünkü Horney bu stratejilerin hepsinin eşit derecede sağlıklı olduğunu düşünmüştür"], "correct": 1, "explanation": "Horney'in tanımladığı üç nörotik strateji (insanlara yönelik/itaatkâr, insanlardan ayrı/bağımsız, insanlara karşı/saldırgan) her biri aşırı ve tek yönlü tepkilerdir. Hiçbiri kişinin gerçek ihtiyaçlarını dengeli şekilde karşılamadığından gerçekçi bir başa çıkma sağlamaz, aksine yeni çatışmalar üretir."}, {"difficulty": "zor", "topic": "Carl Rogers", "question": "Rogers'ın 'koşullu sevgi → değer koşulları → nörotik benlik' zincirinde, 'değer koşulları' kavramı neyi ifade eder?", "options": ["Çocuğun sevilmek için belirli koşulları yerine getirmesi gerektiğini öğrenmesi; bu da kendi gerçek deneyimlerinden kopan, başkalarının onayına bağımlı bir benlik gelişimine yol açar", "Çocuğun koşulsuz olarak sevildiğini hissetmesi", "Rogers'ın terapötik tekniklerinden biri", "Çocuğun ekonomik koşullarının kişiliğini belirlemesi"], "correct": 0, "explanation": "Rogers'a göre eğer sevgi koşullu ise (yalnızca belirli davranışlar sergilendiğinde verilirse), çocuk 'değer koşulları' geliştirir: yalnızca belirli koşulları yerine getirdiğinde değerli olduğunu öğrenir. Bu da kişinin kendi gerçek deneyimlerinden kopmasına ve başkalarının onayına bağımlı, nörotik bir benlik yapısının gelişmesine yol açar. Sağlıklı gelişim için koşulsuz olumlu kabul gereklidir."}, {"difficulty": "zor", "topic": "Bilişsel Devrim", "question": "Chomsky'nin davranışçılığa yönelttiği eleştiri neden 'en sert darbe' olarak nitelendirilir?", "options": ["Chomsky davranışçılığın deneysel yöntemlerini reddetmiştir", "Çocukların hiç duymadıkları cümleleri üretebildiğini göstererek, dilin pekiştirmeyle değil doğuştan gelen zihinsel bir yapıyla öğrenildiğini savunmuş, bu da davranışçılığın temel S-R öğrenme modelini kendi alanında (dil edinimi) çürütmüştür", "Chomsky davranışçılığın yerine psikanalizi önermiştir", "Chomsky yalnızca hayvan dilini incelemiştir"], "correct": 1, "explanation": "Chomsky, çocukların daha önce hiç duymadıkları gramatik olarak doğru cümleler üretebildiğini göstermiştir. Bu, dilin yalnızca pekiştirme ve taklit yoluyla (davranışçı S-R modeliyle) öğrenilemeyeceğini, doğuştan gelen bir dil edinme mekanizmasının olması gerektiğini kanıtlamıştır. Bu eleştiri davranışçılığı kendi güçlü olduğu iddia edilen bir alanda (öğrenme) çürüttüğü için özellikle sarsıcı olmuştur."}, {"difficulty": "zor", "topic": "Bilişsel Devrim", "question": "Bilişsel devrimle birlikte 'içgözlem' ve 'bilinçdışı' kavramlarının yeniden tanımlanma biçimi nedir?", "options": ["İçgözlem tamamen terk edilmiş, bilinçdışı kavramı ise Freud'un tanımıyla aynı kalmıştır", "İçgözlem, Titchener'ın öznel yöntemi yerine 'sesli düşünme protokolleri' adıyla kontrollü bir veri toplama aracı olarak geri dönmüş; bilinçdışı ise Freud'un bastırılmış dürtüler alanı yerine, farkında olmadan gerçekleştirdiğimiz hızlı bilgi işleme süreçlerinin alanı olarak yeniden tanımlanmıştır", "İkisi de psikanalizden bilişsel psikolojiye hiç değişmeden aktarılmıştır", "Bilişsel devrim bu iki kavramı hiç kullanmamıştır"], "correct": 1, "explanation": "Bilişsel devrimle içgözlem geri dönmüştür, ama Titchener'ın öznel yöntemi olarak değil, 'sesli düşünme protokolleri' adıyla kontrollü bir veri toplama aracı olarak (denek bir problemi çözerken aklından geçenleri sesli ifade eder). Bilinçdışı ise Freud'un karanlık, bastırılmış dürtüler alanı olmaktan çıkıp, farkında olmadan gerçekleştirdiğimiz hızlı bilgi işleme süreçlerinin (örn. araba kullanırken otomatik dönüş yapmak) alanı olarak yeniden tanımlanmıştır."}];
+
+const letters = ["A", "B", "C", "D"];
+const container = document.getElementById("quiz-container");
+const answers = new Array(QUESTIONS.length).fill(null);
+let submitted = false;
+
+function render() {
+  container.innerHTML = "";
+  QUESTIONS.forEach((q, qi) => {
+    const card = document.createElement("div");
+    card.className = "question-card";
+    card.id = "q-" + qi;
+
+    const head = document.createElement("div");
+    head.className = "q-head";
+    const qNum = document.createElement("div");
+    qNum.className = "q-number";
+    qNum.textContent = "Soru " + (qi + 1) + " / " + QUESTIONS.length;
+    const badges = document.createElement("div");
+    badges.className = "badges";
+    const diffBadge = document.createElement("span");
+    diffBadge.className = "badge " + (q.difficulty === "zor" ? "zor" : "orta");
+    diffBadge.textContent = q.difficulty === "zor" ? "ZOR" : "ORTA";
+    const topicBadge = document.createElement("span");
+    topicBadge.className = "badge topic";
+    topicBadge.textContent = q.topic;
+    badges.appendChild(diffBadge);
+    badges.appendChild(topicBadge);
+    head.appendChild(qNum);
+    head.appendChild(badges);
+    card.appendChild(head);
+
+    const qText = document.createElement("div");
+    qText.className = "q-text";
+    qText.textContent = q.question;
+    card.appendChild(qText);
+
+    const optsWrap = document.createElement("div");
+    optsWrap.className = "options";
+
+    q.options.forEach((opt, oi) => {
+      const optDiv = document.createElement("div");
+      optDiv.className = "option";
+      optDiv.dataset.qi = qi;
+      optDiv.dataset.oi = oi;
+
+      const letterSpan = document.createElement("div");
+      letterSpan.className = "option-letter";
+      letterSpan.textContent = letters[oi];
+
+      const textSpan = document.createElement("div");
+      textSpan.className = "option-text";
+      textSpan.textContent = opt;
+
+      optDiv.appendChild(letterSpan);
+      optDiv.appendChild(textSpan);
+
+      optDiv.addEventListener("click", () => selectOption(qi, oi));
+
+      optsWrap.appendChild(optDiv);
+    });
+
+    card.appendChild(optsWrap);
+
+    const expDiv = document.createElement("div");
+    expDiv.className = "explanation";
+    expDiv.id = "exp-" + qi;
+    card.appendChild(expDiv);
+
+    container.appendChild(card);
+  });
+  updateProgress();
+}
+
+function selectOption(qi, oi) {
+  if (submitted) return;
+  answers[qi] = oi;
+  const card = document.getElementById("q-" + qi);
+  card.querySelectorAll(".option").forEach(el => {
+    el.classList.toggle("selected", parseInt(el.dataset.oi) === oi);
+  });
+  updateProgress();
+}
+
+function updateProgress() {
+  const answered = answers.filter(a => a !== null).length;
+  const pct = Math.round((answered / QUESTIONS.length) * 100);
+  document.getElementById("progress-bar-fill").style.width = pct + "%";
+  document.getElementById("progress-text").textContent = answered + " / " + QUESTIONS.length + " soru cevaplandı";
+}
+
+function gradeExam() {
+  submitted = true;
+  let correctCount = 0;
+  let ortaCorrect = 0, ortaTotal = 0, zorCorrect = 0, zorTotal = 0;
+
+  QUESTIONS.forEach((q, qi) => {
+    if (q.difficulty === "orta") ortaTotal++; else zorTotal++;
+    const card = document.getElementById("q-" + qi);
+    const userAnswer = answers[qi];
+    const isCorrect = userAnswer === q.correct;
+    if (isCorrect) {
+      correctCount++;
+      if (q.difficulty === "orta") ortaCorrect++; else zorCorrect++;
+    }
+
+    card.querySelectorAll(".option").forEach(el => {
+      const oi = parseInt(el.dataset.oi);
+      el.classList.add("locked");
+      if (oi === q.correct) {
+        el.classList.add("correct-answer");
+      } else if (oi === userAnswer && !isCorrect) {
+        el.classList.add("wrong-answer");
+      }
+    });
+
+    const expDiv = document.getElementById("exp-" + qi);
+    expDiv.classList.add("show");
+    expDiv.classList.add(isCorrect ? "correct-exp" : "wrong-exp");
+    const prefix = isCorrect ? "✓ Doğru cevap: " : "✗ Yanlış — Doğru cevap: ";
+    const correctLetterText = letters[q.correct] + ") " + q.options[q.correct];
+    expDiv.innerHTML = "<b>" + prefix + correctLetterText + "</b>" + q.explanation;
+  });
+
+  const resultsPanel = document.getElementById("results-panel");
+  resultsPanel.classList.add("show");
+  document.getElementById("score-big").textContent = correctCount + " / " + QUESTIONS.length;
+  const pct = Math.round((correctCount / QUESTIONS.length) * 100);
+  document.getElementById("score-percent").textContent = "Başarı Oranı: %" + pct;
+  document.getElementById("rb-orta").textContent = ortaCorrect + "/" + ortaTotal;
+  document.getElementById("rb-zor").textContent = zorCorrect + "/" + zorTotal;
+
+  document.getElementById("submit-btn").disabled = true;
+  resultsPanel.scrollIntoView({behavior: "smooth", block: "start"});
+}
+
+document.getElementById("submit-btn").addEventListener("click", () => {
+  const unanswered = answers.filter(a => a === null).length;
+  if (unanswered > 0) {
+    const proceed = confirm(unanswered + " soru henüz cevaplanmadı. Yine de sınavı bitirmek istiyor musunuz?");
+    if (!proceed) return;
+  }
+  gradeExam();
+});
+
+document.getElementById("reset-btn").addEventListener("click", () => {
+  location.reload();
+});
+
+render();
+</script>
+
+</body>
+</html>

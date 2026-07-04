@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Araştırma Yöntemleri — Doktora Yeterlik Sınavı</title>
+<style>
+  :root {
+    --bg: #f7f5f2;
+    --panel: #ffffff;
+    --ink: #1f2430;
+    --muted: #6b7280;
+    --accent: #6d4aff;
+    --accent-dark: #5636d6;
+    --orta: #2b8a3e;
+    --orta-bg: #e6f6ea;
+    --zor: #c0392b;
+    --zor-bg: #fdecea;
+    --correct: #1e8e3e;
+    --correct-bg: #e6f7ec;
+    --wrong: #d93025;
+    --wrong-bg: #fdeceb;
+    --border: #e6e3dd;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.55;
+  }
+  .wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 28px 20px 80px;
+  }
+  header.hero {
+    text-align: center;
+    padding: 34px 20px 26px;
+    background: linear-gradient(135deg, #6d4aff, #9b6bff);
+    color: white;
+    border-radius: 18px;
+    margin-bottom: 28px;
+    box-shadow: 0 10px 30px rgba(109,74,255,0.25);
+  }
+  header.hero h1 {
+    margin: 0 0 8px;
+    font-size: 1.7rem;
+    font-weight: 700;
+  }
+  header.hero p {
+    margin: 4px 0;
+    opacity: 0.95;
+    font-size: 0.98rem;
+  }
+  .meta-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 16px;
+  }
+  .pill {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  #progress-container {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--bg);
+    padding: 12px 0 10px;
+  }
+  #progress-bar-bg {
+    background: #e5e1da;
+    border-radius: 999px;
+    height: 10px;
+    overflow: hidden;
+  }
+  #progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6d4aff, #a78bfa);
+    width: 0%;
+    transition: width 0.25s ease;
+  }
+  #progress-text {
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .question-card {
+    background: var(--panel);
+    border-radius: 16px;
+    padding: 22px 22px 20px;
+    margin-bottom: 18px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+  }
+  .q-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .q-number {
+    font-weight: 700;
+    color: var(--accent-dark);
+    font-size: 0.95rem;
+  }
+  .badges { display:flex; gap:6px; flex-wrap: wrap; justify-content: flex-end;}
+  .badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .badge.orta { color: var(--orta); background: var(--orta-bg); }
+  .badge.zor { color: var(--zor); background: var(--zor-bg); }
+  .badge.topic { color: var(--muted); background: #f1f0ed; }
+  .q-text {
+    font-size: 1.03rem;
+    font-weight: 600;
+    margin: 6px 0 16px;
+    color: var(--ink);
+  }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    background: #fdfdfc;
+  }
+  .option:hover:not(.locked) {
+    border-color: var(--accent);
+    background: #f7f4ff;
+  }
+  .option.selected {
+    border-color: var(--accent);
+    background: #f0ebff;
+  }
+  .option-letter {
+    flex: 0 0 auto;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #ece9e3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.82rem;
+    color: var(--ink);
+  }
+  .option.selected .option-letter {
+    background: var(--accent);
+    color: white;
+  }
+  .option-text { flex: 1; font-size: 0.95rem; padding-top: 3px; }
+  .option.correct-answer {
+    border-color: var(--correct);
+    background: var(--correct-bg);
+  }
+  .option.correct-answer .option-letter {
+    background: var(--correct);
+    color: white;
+  }
+  .option.wrong-answer {
+    border-color: var(--wrong);
+    background: var(--wrong-bg);
+  }
+  .option.wrong-answer .option-letter {
+    background: var(--wrong);
+    color: white;
+  }
+  .option.locked { cursor: default; }
+  .explanation {
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    display: none;
+    animation: fadein 0.3s ease;
+  }
+  .explanation.show { display: block; }
+  .explanation.correct-exp {
+    background: var(--correct-bg);
+    border-left: 4px solid var(--correct);
+    color: #145a28;
+  }
+  .explanation.wrong-exp {
+    background: var(--wrong-bg);
+    border-left: 4px solid var(--wrong);
+    color: #7a1f16;
+  }
+  .explanation b { display:block; margin-bottom: 4px; }
+  @keyframes fadein { from { opacity:0; transform: translateY(-4px);} to {opacity:1; transform: translateY(0);} }
+
+  #submit-area {
+    text-align: center;
+    margin: 30px 0 10px;
+  }
+  #submit-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(109,74,255,0.3);
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  #submit-btn:hover { background: var(--accent-dark); transform: translateY(-1px); }
+  #submit-btn:disabled { background: #c9c2f7; cursor: not-allowed; box-shadow:none; }
+
+  #results-panel {
+    display: none;
+    background: linear-gradient(135deg, #1f2430, #3a3f55);
+    color: white;
+    border-radius: 18px;
+    padding: 30px 26px;
+    text-align: center;
+    margin-bottom: 26px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  }
+  #results-panel.show { display: block; }
+  #results-panel h2 { margin: 0 0 6px; font-size: 1.5rem; }
+  #results-panel .score-big { font-size: 2.6rem; font-weight: 800; margin: 10px 0; }
+  .results-breakdown {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .rb-item { background: rgba(255,255,255,0.1); padding: 10px 18px; border-radius: 12px; min-width: 110px; }
+  .rb-item .num { font-size: 1.3rem; font-weight: 700; }
+  .rb-item .lbl { font-size: 0.78rem; opacity: 0.85; }
+
+  #reset-btn {
+    margin-top: 18px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.4);
+    color: white;
+    padding: 10px 22px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  #reset-btn:hover { background: rgba(255,255,255,0.25); }
+
+  .jump-hint {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 480px) {
+    header.hero h1 { font-size: 1.35rem; }
+    .question-card { padding: 16px 14px; }
+    .q-text { font-size: 0.98rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <h1>Araştırma Yöntemleri Sınavı</h1>
+    <p>Psikoloji Doktora Yeterlik Sınavına Hazırlık — Deneme Testi</p>
+    <div class="meta-bar">
+      <span class="pill">50 Soru</span>
+      <span class="pill">20 Orta Zorluk</span>
+      <span class="pill">30 Zor</span>
+      <span class="pill">Açıklamalı Cevap Anahtarı</span>
+    </div>
+  </header>
+
+  <div id="progress-container">
+    <div id="progress-bar-bg"><div id="progress-bar-fill"></div></div>
+    <div id="progress-text">0 / 50 soru cevaplandı</div>
+  </div>
+
+  <p class="jump-hint">Her soruyu cevapladığınızda seçiminiz işaretlenir. Tüm soruları cevapladıktan sonra en alttaki <b>"Sınavı Bitir ve Sonuçları Gör"</b> butonuna basarak doğru cevapları ve açıklamalarını görebilirsiniz.</p>
+
+  <div id="quiz-container"></div>
+
+  <div id="submit-area">
+    <button id="submit-btn">Sınavı Bitir ve Sonuçları Gör</button>
+  </div>
+
+  <div id="results-panel">
+    <h2>Sınav Sonucunuz</h2>
+    <div class="score-big" id="score-big">0 / 50</div>
+    <div id="score-percent" style="font-size:1.1rem; opacity:0.9;"></div>
+    <div class="results-breakdown">
+      <div class="rb-item"><div class="num" id="rb-orta">0/20</div><div class="lbl">Orta Zorluk Doğru</div></div>
+      <div class="rb-item"><div class="num" id="rb-zor">0/30</div><div class="lbl">Zor Doğru</div></div>
+    </div>
+    <button id="reset-btn">Sınavı Yeniden Başlat</button>
+  </div>
+
+</div>
+
+<script>
+const QUESTIONS = [{"difficulty": "orta", "topic": "Araştırma Süreci", "question": "Operasyonel tanım nedir?", "options": ["Bir kavramın günlük dildeki anlamı", "Soyut bir kavramın herkesin aynı şekilde ölçebileceği somut bir hale getirilmesi", "Bir kuramın matematiksel olarak ifade edilmesi", "Bir değişkenin istatistiksel dağılımı"], "correct": 1, "explanation": "Operasyonel tanım, 'stres' veya 'yalnızlık' gibi soyut bir kavramı, herkesin aynı şekilde ölçebileceği somut bir ölçüme (örn. 'Algılanan Stres Ölçeği puanı') dönüştürmektir. Böylece farklı araştırmacılar aynı kavramı aynı şekilde ölçmüş olur."}, {"difficulty": "orta", "topic": "Araştırma Süreci", "question": "Aşağıdakilerden hangisi betimleyici (tanımlayıcı) bir araştırma sorusudur?", "options": ["Sosyal destek arttıkça depresyon azalıyor mu?", "İlaç tedavisi depresyonu azaltır mı?", "Üniversite öğrencilerinde sınav kaygısının düzeyi nedir?", "Rastgele atama yapılırsa gruplar arası fark ortaya çıkar mı?"], "correct": 2, "explanation": "Betimleyici araştırma 'Ne var? Nasıl görünüyor?' sorusuna cevap arar. 'Sınav kaygısının düzeyi nedir?' sorusu bir durumu tanımlamayı hedefler; nedensellik veya ilişki iddiası içermez."}, {"difficulty": "orta", "topic": "Araştırma Süreci", "question": "Bilimsel yaklaşımı günlük (sezgisel) yaklaşımdan ayıran temel özellik aşağıdakilerden hangisidir?", "options": ["Bilimsel yaklaşım daha hızlı sonuç üretir", "Bilimsel yaklaşım sistematik, kontrollü ve kanıta (görgül) dayalıdır", "Bilimsel yaklaşım her zaman deneysel desen kullanır", "Bilimsel yaklaşım sezgiye daha çok önem verir"], "correct": 1, "explanation": "Bilimsel yaklaşımın temel özellikleri sistematiklik (rastgele değil, planlı ve aşamalı) ve test edilebilirliktir. Günlük yaklaşım ise sezgiye dayalı, rastgele ve kontrolsüz gözlemlere dayanır."}, {"difficulty": "orta", "topic": "Araştırma Süreci", "question": "Teori, hipotez ve yordama üçlüsünde en geniş kapsamlı yapı hangisidir?", "options": ["Hipotez", "Yordama", "Teori", "Operasyonel tanım"], "correct": 2, "explanation": "Teori, birçok olayı açıklayan tutarlı önermeler bütünüdür ve üçlü içinde en geniş yapıdır. Yordama teorinin henüz test edilmemiş bir beklentisidir; hipotez ise test edilebilir, somut ve çürütülebilir araştırma cümlesidir."}, {"difficulty": "orta", "topic": "Araştırma Süreci", "question": "Karl Popper'a göre bilimsel bir teorinin taşıması gereken temel özellik nedir?", "options": ["Deneysel olarak asla test edilmemiş olması", "Çürütülebilir (yanlışlanabilir) olması", "Yalnızca doğrulanabilir olması", "Toplum tarafından kabul görmesi"], "correct": 1, "explanation": "Popper'a göre bilimsel bir teori çürütülebilir (yanlışlanabilir) olmalıdır. Bir teoriyi doğrulamaya çalışmak yerine yanlışlamaya çalışmak, daha güçlü kanıt sağlar; çünkü doğrulama sınırlıdır, teorinin her koşulda doğru olduğunu kanıtlayamaz."}, {"difficulty": "orta", "topic": "Araştırma Süreci", "question": "Bilimsel yöntemin dört amacından hangisi 'değişkenler arasındaki neden-sonuç bağını anlamak' ile ilgilidir?", "options": ["Betimleme", "Kestirim (Yordama)", "Açıklama", "Yönetim (Uygulama)"], "correct": 2, "explanation": "BKAY (Betimleme-Kestirim-Açıklama-Yönetim) sıralamasında 'Açıklama' aşaması 'Neden oluyor?' sorusuna, yani değişkenler arasındaki neden-sonuç ilişkisini anlamaya karşılık gelir."}, {"difficulty": "orta", "topic": "Araştırma Süreci", "question": "Temel araştırma ile uygulamalı araştırma arasındaki temel fark nedir?", "options": ["Temel araştırma 'Nasıl çözeriz?', uygulamalı araştırma 'Neden?' sorusuna cevap arar", "Temel araştırma teori geliştirmeyi, uygulamalı araştırma bir problemi çözmeyi hedefler", "Temel araştırma yalnızca deneysel desen kullanır", "Uygulamalı araştırma yalnızca nitel yöntemlerle yapılır"], "correct": 1, "explanation": "Temel araştırma 'Neden?' sorusuna cevap arayarak teori geliştirmeyi ve bilgiyi artırmayı hedefler (örn. insan belleği nasıl çalışır?). Uygulamalı araştırma ise 'Nasıl çözeriz?' sorusuna odaklanarak pratik bir problemi çözmeyi amaçlar (örn. hangi terapi daha etkili?)."}, {"difficulty": "orta", "topic": "Değişkenler", "question": "Bir araştırmada, araştırmacının bilinçli olarak değiştirdiği veya kontrol ettiği ve etkisini incelemek istediği değişken hangisidir?", "options": ["Bağımlı değişken", "Bağımsız değişken", "Karıştırıcı değişken", "Kontrol değişkeni"], "correct": 1, "explanation": "Bağımsız değişken, araştırmacının bilinçli olarak değiştirdiği ya da manipüle ettiği 'neden' konumundaki değişkendir. Bağımlı değişken ise bağımsız değişkenin etkisinin ölçüldüğü 'sonuç' değişkenidir."}, {"difficulty": "orta", "topic": "Değişkenler", "question": "Kahve tüketimi ile akademik başarı arasındaki ilişkide, aslında 'ders çalışma süresi' bu ilişkiyi bulandıran üçüncü bir faktör olarak işlev görüyorsa, bu değişken türü nedir?", "options": ["Aracı değişken", "Karıştırıcı değişken", "Kontrol değişkeni", "Bireysel farklar değişkeni"], "correct": 1, "explanation": "Karıştırıcı değişken, ikinci bir bağımsız değişken gibi davranarak asıl ilişkiyi bulandıran, gizli ve istenmeyen bir üçüncü faktördür. Bu örnekte 'ders çalışma süresi' kahve ile başarı ilişkisini karıştırmaktadır."}, {"difficulty": "orta", "topic": "Geçerlik ve Güvenirlik", "question": "Güvenilirlik (reliability) kavramının tanımı nedir?", "options": ["Bir ölçüm aracının gerçekten ölçmek istediği şeyi ölçmesi", "Bir ölçüm aracının tutarlı sonuçlar vermesi", "Bir ölçüm aracının örneklemi temsil etmesi", "Bir ölçüm aracının nedensellik kurabilmesi"], "correct": 1, "explanation": "Güvenilirlik = tutarlılıktır. Aynı özelliği ölçen bir araç, benzer koşullarda tekrar uygulandığında benzer sonuçlar veriyorsa güvenilirdir (örn. test-tekrar test güvenilirliği, iç tutarlılık, değerlendiriciler arası güvenilirlik)."}, {"difficulty": "orta", "topic": "Geçerlik ve Güvenirlik", "question": "Geçerlik (validity) kavramının tanımı nedir?", "options": ["Bir ölçüm aracının tekrarlandığında benzer sonuç vermesi", "Bir ölçüm aracının gerçekten ölçmek istediği şeyi ölçmesi", "Bir örneklemin evreni temsil etme gücü", "Bir araştırmanın etik kurallara uygunluğu"], "correct": 1, "explanation": "Geçerlik = doğruluktur. Bir ölçüm aracının gerçekten ölçmeyi amaçladığı yapıyı ölçüp ölçmediğini ifade eder. Bir araç güvenilir olsa bile (tutarlı sonuç verse bile) geçerli olmayabilir."}, {"difficulty": "orta", "topic": "İstatistiksel Hatalar", "question": "Sıfır hipotezi (H0) doğruyken reddedilmesi hangi hata türüdür?", "options": ["Tip II Hata", "Tip I Hata", "Seçim yanlılığı", "Regresyon etkisi"], "correct": 1, "explanation": "Tip I hata (α - yanlış alarm), gerçekte fark/etki yokken 'var' demektir; yani sıfır hipotezi doğruyken reddedilmesidir ('yangın yok ama alarm çalıyor'). Tip II hata ise tam tersi, gerçek etki varken bunu kaçırmaktır."}, {"difficulty": "orta", "topic": "İstatistiksel Hatalar", "question": "Gerçekte bir etki veya fark varken, araştırmanın bunu tespit edememesi (H0'ı reddedememesi) hangi hata türüdür?", "options": ["Tip I Hata", "Tip II Hata", "Seçici denek kaybı", "Ölçüm hatası"], "correct": 1, "explanation": "Tip II hata (β - kaçırma), sıfır hipotezi yanlışken reddedilememesidir; yani gerçekte etki/fark varken bunun fark edilmemesidir ('yangın var ama alarm sessiz')."}, {"difficulty": "orta", "topic": "Araştırma Etiği", "question": "Katılımcıya araştırmanın amacı, süresi, riskleri ve gizlilik koşullarının açıklanması hangi etik ilkeyle ilgilidir?", "options": ["Adalet", "Bilgilendirilmiş onam", "Yarar sağlama (beneficence)", "Özerkliğe saygı"], "correct": 1, "explanation": "Bilgilendirilmiş onam, katılımcıya araştırmanın amacının, süresinin, risklerinin ve gizlilik koşullarının açıkça anlatılmasını gerektiren temel etik ilkedir."}, {"difficulty": "orta", "topic": "Gözlem Yöntemleri", "question": "İnsanların gözlendiklerini bildiklerinde davranışlarını doğal olmayan biçimde değiştirmesine ne ad verilir?", "options": ["Deneyci etkisi", "Hawthorne etkisi", "Regresyon etkisi", "Sosyal beğenirlik"], "correct": 1, "explanation": "Hawthorne etkisi, katılımcıların gözlendiklerini bilmelerinin davranışlarını değiştirmesidir; bu durum verinin doğallığını ve geçerliğini azaltır. Çözüm olarak gözlemi fark ettirmeden yapmak önerilir."}, {"difficulty": "orta", "topic": "Ölçüm Düzeyleri", "question": "Yalnızca sınıflama yapılabilen, büyüklük veya sıralama içermeyen ölçüm düzeyi hangisidir? (Örnek: cinsiyet)", "options": ["Ordinal düzey", "Aralıklı (interval) düzey", "Nominal düzey", "Oranlı (ratio) düzey"], "correct": 2, "explanation": "Nominal düzey sadece sınıflama yapılan, büyüklük veya sıra içermeyen en temel ölçüm düzeyidir (örn. cinsiyet: kadın/erkek). Bu düzeyde frekans, yüzde ve mod gibi istatistikler kullanılabilir."}, {"difficulty": "orta", "topic": "Örnekleme Yöntemleri", "question": "Evrendeki herkesin seçilme şansının eşit olduğu, tam kura mantığına dayanan örnekleme yöntemi hangisidir?", "options": ["Tabakalı örnekleme", "Basit seçkisiz örnekleme", "Küme örnekleme", "Kolayda örnekleme"], "correct": 1, "explanation": "Basit seçkisiz (random) örneklemede evrendeki her bireyin seçilme şansı eşittir; 'torbadan isim çekmek' mantığına benzer. Tabakalı örneklemede evren alt gruplara ayrılır, küme örneklemede ise bireyler değil grupların tamamı seçilir."}, {"difficulty": "orta", "topic": "Anket Araştırmaları", "question": "Verinin tek bir zaman diliminde toplandığı, hızlı ve ucuz olan ancak zamansal değişimi gösteremeyen anket deseni hangisidir?", "options": ["Boylamsal desen", "Ardışık bağımsız örneklemler deseni", "Kesitsel desen", "Deneysel desen"], "correct": 2, "explanation": "Kesitsel (cross-sectional) desende veri tek bir zamanda toplanır; hızlı ve ucuzdur ama zaman içindeki değişimi gösteremez. Boylamsal desende ise aynı katılımcılar zaman içinde tekrar tekrar ölçülür."}, {"difficulty": "orta", "topic": "Deneysel Araştırmalar", "question": "Ne katılımcının ne de araştırmacının kimin hangi grupta olduğunu bilmediği, beklenti etkisini ve deneyci yanlılığını azaltan yöntem hangisidir?", "options": ["Tek kör yöntem", "Çift kör yöntem", "Karşıt dengeleme", "Blok seçkisizleştirme"], "correct": 1, "explanation": "Çift kör yöntemde ne katılımcı ne de araştırmacı hangi grubun hangi koşulda olduğunu bilir; bu durum hem beklenti etkisini hem de deneyci yanlılığını azaltarak iç geçerliliği güçlendirir. Tek körde sadece katılımcı bilmez."}, {"difficulty": "orta", "topic": "Faktöriyel Desenler", "question": "Faktöriyel bir desende, bir bağımsız değişkenin diğer değişkenlerden bağımsız olarak, tüm düzeylerin ortalamasına bakılarak hesaplanan etkisine ne ad verilir?", "options": ["Etkileşim etkisi", "Ana etki (temel etki)", "Karıştırıcı etki", "Taşıma etkisi"], "correct": 1, "explanation": "Ana etki (temel etki), bir bağımsız değişkenin diğer değişkenlerden bağımsız olarak, kendi düzeylerinin ortalamasına bakılarak hesaplanan etkisidir. Etkileşim etkisi ise bir değişkenin etkisinin başka bir değişkene göre değişip değişmediğini gösterir."}, {"difficulty": "zor", "topic": "Değişkenler", "question": "Yaş ile depresyon arasındaki ilişkiyi inceleyen bir araştırmada 'yaş' bağımsız değişken olarak tanımlanmıştır. Bu tanımlamayla ilgili en isabetli değerlendirme hangisidir?", "options": ["Yaş her zaman gerçek bir bağımsız değişkendir çünkü sayısal bir ölçektir", "Yaş araştırmacı tarafından manipüle edilemediği için gerçek anlamda bir bağımsız değişken değil, bireysel farklar (organizmik) değişkenidir", "Yaş, depresyonun aracı değişkenidir", "Yaş bir karıştırıcı değişken olduğu için analiz dışı bırakılmalıdır"], "correct": 1, "explanation": "Bağımsız değişken tanımı gereği araştırmacının bilinçli olarak manipüle ettiği/atadığı değişkendir. Yaş gibi kişinin doğuştan getirdiği, araştırmacının değiştiremediği değişkenler 'bireysel farklar (organizmik) değişkeni' olarak sınıflandırılır; bu nedenle klasik anlamda deneysel bir bağımsız değişken değildir, çünkü rastgele atama söz konusu olamaz."}, {"difficulty": "zor", "topic": "Değişkenler", "question": "'Aşağılama → öfke → saldırganlık' modelinde 'öfke' değişkeni hangi rolü üstlenmektedir?", "options": ["Karıştırıcı değişken; çünkü ilişkiyi bulandırmaktadır", "Aracı değişken; çünkü bağımsız ile bağımlı değişken arasındaki mekanizmayı açıklamaktadır", "Kontrol değişkeni; çünkü sabit tutulmalıdır", "Bireysel farklar değişkeni; çünkü kişiden kişiye değişir"], "correct": 1, "explanation": "Aracı değişken, bağımsız değişken (aşağılama) ile bağımlı değişken (saldırganlık) arasındaki köprüyü oluşturarak etkinin mekanizmasını açıklar. Karıştırıcı değişken ise istenmeyen, gizli bir üçüncü etkendir ve teoriyi zenginleştirmek yerine araştırmayı bozar — bu ayrım sıkça karıştırılır."}, {"difficulty": "zor", "topic": "Nedensellik", "question": "Yazın hem dondurma satışlarının hem de boğulma vakalarının artması örneği hangi kavramı en iyi açıklar?", "options": ["Nedensellik", "Aldatıcı (sahte) korelasyon", "Yapı geçerliği", "Tip I hata"], "correct": 1, "explanation": "Bu klasik örnek aldatıcı korelasyonu gösterir: dondurma satışı ile boğulma vakaları arasında görünür bir ilişki vardır ama biri diğerine neden olmaz; her ikisinin de gerçek nedeni sıcak hava (üçüncü/karıştırıcı değişken) dir."}, {"difficulty": "zor", "topic": "Nedensellik", "question": "Bir araştırmacı 'sosyal medya kullanımı depresyona neden olur' iddiasını öne sürüyor ancak yalnızca aynı zaman diliminde ölçüm yapılmış bir korelasyonel çalışmaya dayanıyor. Nedensellik için gereken üç koşuldan hangisi bu çalışmada büyük olasılıkla karşılanmamıştır?", "options": ["Birlikte değişim", "Zaman sırası", "Alternatif açıklamaların elenmesi", "Hem zaman sırası hem alternatif açıklamaların elenmesi"], "correct": 3, "explanation": "Nedensellik için (1) birlikte değişim, (2) zaman sırası (neden, sonuçtan önce gelmeli) ve (3) alternatif açıklamaların (karıştırıcı değişkenlerin) elenmesi gerekir. Kesitsel bir korelasyonel çalışmada hem hangi değişkenin önce geldiği belirlenemez hem de üçüncü değişkenler kontrol edilmemiştir; bu nedenle her iki koşul da sağlanmamış olabilir."}, {"difficulty": "zor", "topic": "Geçerlik ve Güvenirlik", "question": "Bir tartı her tartıldığında 62 kilogram göstermektedir, ancak kişinin gerçek ağırlığı 60 kilogramdır. Bu durum hangi ilkeyi örneklendirir?", "options": ["Tartı hem güvenilir hem geçerlidir", "Tartı güvenilirdir ama geçerli değildir", "Tartı geçerlidir ama güvenilir değildir", "Tartı ne güvenilir ne geçerlidir"], "correct": 1, "explanation": "Tartı her seferinde aynı (tutarlı) sonucu verdiği için güvenilirdir, ancak gerçek değeri yansıtmadığı için geçerli değildir. Kritik kural: bir araç güvenilir olduğu halde geçersiz olabilir, ama geçerli olmak için önce güvenilir olmak zorunludur."}, {"difficulty": "zor", "topic": "Geçerlik ve Güvenirlik", "question": "Yeni geliştirilen bir depresyon ölçeğinin, zeka testiyle düşük ilişki göstermesi beklenmektedir. Bu beklenti hangi geçerlik türüyle ilgilidir?", "options": ["Yakınsak geçerlik (convergent)", "Ayırt edici geçerlik (discriminant)", "Kapsam geçerliği", "Ölçüt geçerliği (yordama)"], "correct": 1, "explanation": "Ayırt edici (discriminant) geçerlikte, ölçeğin farklı/ilgisiz yapıları ölçen bir araçla düşük ilişki göstermesi beklenir. Yakınsak geçerlikte ise benzer yapıları ölçen bir araçla (örn. Beck Depresyon Envanteri) yüksek ilişki beklenir."}, {"difficulty": "zor", "topic": "İç Geçerlilik", "question": "Bir kaygı çalışması sürerken bölgede beklenmedik bir deprem meydana geliyor ve bu durum katılımcıların kaygı düzeyini etkiliyor. Bu, iç geçerliliğe yönelik hangi tehdittir?", "options": ["Olgunlaşma", "Tarih", "Test etkisi", "Araç değişimi"], "correct": 1, "explanation": "Tarih tehdidi, araştırma sürerken yaşanan dış bir olayın (bu örnekte deprem) sonuçları etkilemesidir. Olgunlaşma ise katılımcıların zamanla doğal olarak (yaşlanma, öğrenme gibi) değişmesiyle ilgilidir."}, {"difficulty": "zor", "topic": "İç Geçerlilik", "question": "Bir terapi programına katılan çocukların başarısının arttığı gözlemleniyor, ancak bu artışın aslında çocukların doğal olarak büyümesinden ve gelişmesinden kaynaklandığı düşünülüyor. Bu iç geçerlilik tehdidi hangisidir?", "options": ["Tarih", "Olgunlaşma", "Regresyon etkisi", "Seçim yanlılığı"], "correct": 1, "explanation": "Olgunlaşma tehdidi, zamanla yaşanan doğal değişimlerin (yaşlanma, öğrenme, gelişme) müdahalenin etkisiyle karıştırılmasıdır. Bu örnekte başarı artışı terapiden değil, çocukların doğal gelişiminden kaynaklanıyor olabilir."}, {"difficulty": "zor", "topic": "İç Geçerlilik", "question": "Bir sınavda en düşük puanı alan öğrenciler ikinci uygulamada doğal olarak biraz daha yüksek puan almışlardır; bu durumun bir müdahalenin etkisiyle karıştırılması hangi tehdide örnektir?", "options": ["Regresyon etkisi", "Olgunlaşma", "Seçim yanlılığı", "Deneyci etkisi"], "correct": 0, "explanation": "Regresyon etkisi (ortalamaya dönüş), aşırı uç puanların zamanla doğal olarak ortalamaya yaklaşmasıdır. Bu doğal istatistiksel eğilim, yanlışlıkla müdahalenin bir etkisi gibi yorumlanabilir."}, {"difficulty": "zor", "topic": "İç Geçerlilik", "question": "Bir terapistin, deney grubundaki katılımcılara bilinçli olmadan daha sıcak ve destekleyici davranması ve bunun tedavinin etkili görünmesine katkıda bulunması hangi tehdidi ifade eder?", "options": ["Hawthorne etkisi", "Deneyci etkisi", "Test etkisi", "Seçim yanlılığı"], "correct": 1, "explanation": "Deneyci etkisi, araştırmacının/uygulayıcının beklentisinin farkında olmadan katılımcı davranışını (ve sonucu) etkilemesidir. Bu tehdit, çift kör yöntem kullanılarak azaltılabilir."}, {"difficulty": "zor", "topic": "Meta-Analiz", "question": "Aynı konuyu inceleyen birçok bağımsız çalışmanın sonuçlarını istatistiksel olarak birleştirerek genel bir sonuca ulaşan yöntemin en güçlü sonuç vermesinin temel nedeni nedir?", "options": ["Yalnızca en güncel çalışmayı esas alması", "Etkili örneklem büyüklüğünü artırması ve çelişkili bulguları uzlaştırabilmesi", "Tek bir çalışmanın iç geçerliliğini otomatik olarak artırması", "Yayın yanlılığı sorununu tamamen ortadan kaldırması"], "correct": 1, "explanation": "Meta-analiz, birçok çalışmayı birleştirerek etkili örneklem büyüklüğünü artırır, çelişkili bulguları uzlaştırabilir ve genellenebilirliği güçlendirir. Yayın yanlılığı denetlenebilir olsa da tamamen ortadan kaldırılamaz; bu seçenek abartılı bir iddiadır."}, {"difficulty": "zor", "topic": "Tekrarlı Ölçümler", "question": "Aynı katılımcıların tüm deney koşullarına girdiği bir tekrarlı ölçümler deseninin, bağımsız gruplar desenine göre temel istatistiksel avantajı nedir?", "options": ["Daha fazla katılımcı gerektirmesi", "Bireysel farklılıkların hata kaynağı olarak sisteme daha az girmesi ve böylece küçük etkilerin bile tespit edilebilmesi", "Karşıt dengeleme gerektirmemesi", "Alıştırma etkilerinin tamamen ortadan kalkması"], "correct": 1, "explanation": "Tekrarlı ölçümler deseninde aynı kişi tüm koşullara girdiği için bireysel farklılıklar büyük ölçüde kontrol edilir; bu da duyarlılığı artırır ve az katılımcıyla bile küçük etkilerin görülebilmesini sağlar. Ancak bu desen alıştırma/sıra/taşıma etkileri gibi kendine özgü sorunlar taşır."}, {"difficulty": "zor", "topic": "Tekrarlı Ölçümler", "question": "Bir katılımcıya kafein verildikten sonra, kafein hâlâ kan dolaşımındayken plasebo koşulu uygulanıyor ve bu durum plasebo koşulunun sonuçlarını etkiliyor. Bu durum hangi kavramla açıklanır?", "options": ["Alıştırma etkisi", "Sıra etkisi", "Taşıma etkisi", "Ayırmasal aktarım"], "correct": 2, "explanation": "Taşıma etkisi, bir koşulun etkisinin fizyolojik veya psikolojik olarak bir sonraki koşula taşınmasıdır (bu örnekte kafeinin etkisinin hâlâ sürmesi). Ayırmasal aktarım ise taşıma etkisinin simetrik olmadığı, yani A→B ile B→A sıralarının farklı etkiler ürettiği özel bir durumdur."}, {"difficulty": "zor", "topic": "Karşıt Dengeleme", "question": "Bir araştırmada koşulların etkisi kişiden kişiye kalıcı ve tersine döndürülemez biçimde taşınıyorsa (örn. bir stratejinin öğrenilip unutulamaması), hangi karşıt dengeleme yöntemi işe yaramaz hale gelir?", "options": ["Tam karşıt dengeleme", "Latin kare (kısmi karşıt dengeleme)", "ABBA deseni", "Blok seçkisizleştirme"], "correct": 2, "explanation": "ABBA deseni, baş ve son etkilerini dengelemek için kullanılır ancak kalıcı (geri döndürülemez) bir taşıma etkisi varsa işe yaramaz; çünkü etkinin simetrik ve dengelenebilir olduğunu varsayar. Kalıcı taşıma etkisi olduğunda bağımsız gruplar deseni tercih edilmelidir."}, {"difficulty": "zor", "topic": "Faktöriyel Desenler", "question": "3 x 2 faktöriyel bir ANOVA deseninde toplam kaç deney koşulu (grup) bulunur ve kaç bağımsız değişken vardır?", "options": ["5 grup, 2 bağımsız değişken", "6 grup, 2 bağımsız değişken", "6 grup, 3 bağımsız değişken", "3 grup, 1 bağımsız değişken"], "correct": 1, "explanation": "Faktöriyel gösterimde her sayı bir bağımsız değişkeni, değeri ise o değişkenin düzey sayısını temsil eder. 3x2 gösteriminde 2 bağımsız değişken vardır (biri 3 düzeyli, diğeri 2 düzeyli) ve toplam grup sayısı sayıların çarpımıyla bulunur: 3 x 2 = 6 grup."}, {"difficulty": "zor", "topic": "Faktöriyel Desenler", "question": "Kafeinin dikkat performansına etkisinin, kişinin uyku miktarına bağlı olarak değişmesi (az uyuyanlarda etki yokken, iyi uyuyanlarda dikkati artırması) hangi bulguyu gösterir?", "options": ["Ana etki", "Etkileşim etkisi", "Karıştırıcı etki", "Taban etkisi"], "correct": 1, "explanation": "Etkileşim etkisi, bir değişkenin etkisinin başka bir değişkenin düzeyine göre değişmesidir. Bu örnekte kafeinin etkisi uyku miktarına bağlı olduğu için bu bir etkileşim etkisidir; grafikte bu durum paralel olmayan çizgilerle gösterilir."}, {"difficulty": "zor", "topic": "Faktöriyel Desenler", "question": "Bir dikkat testi o kadar kolaydır ki neredeyse tüm katılımcılar yüksek puan almaktadır ve gruplar arasındaki gerçek farklar görünmez hale gelmektedir. Bu durum hangi kavramla açıklanır?", "options": ["Taban etkisi", "Tavan etkisi", "Regresyon etkisi", "Alıştırma etkisi"], "correct": 1, "explanation": "Tavan etkisi, testin çok kolay olması nedeniyle herkesin yüksek puan alması ve gruplar arasındaki gerçek farkların görünmez hale gelmesidir. Taban etkisinde ise test çok zor olduğu için herkes düşük puan alır ve farklar yine görünmez."}, {"difficulty": "zor", "topic": "Tek Denekli Desenler", "question": "Kendine zarar verme davranışını azaltmayı hedefleyen bir tek denekli çalışmada, etkili olan müdahalenin ABAB deseninde olduğu gibi geri çekilmesi etik açıdan sorunlu olacağından, araştırmacı hangi deseni tercih etmelidir?", "options": ["Basit kesintili zaman dizisi deseni", "Çoklu temel düzey deseni", "Denk olmayan kontrol gruplu desen", "Tam karşıt dengeleme deseni"], "correct": 1, "explanation": "ABAB deseninde işe yarayan bir müdahalenin geri çekilmesi, davranış tehlikeliyse (örn. kendine zarar verme) etik değildir. Bu durumda çoklu temel düzey deseni kullanılır; müdahale geri çekilmeden farklı bireylere, ortamlara veya davranışlara sırayla uygulanarak nedensellik gösterilir."}, {"difficulty": "zor", "topic": "Yarı Deneysel Desenler", "question": "Deprem sonrası psikolojik destek programının etkisini incelemek isteyen bir araştırmacı, katılımcıları rastgele gruplara ayıramamaktadır çünkü destek herkese verilmelidir. Bu durumda kullanılması gereken desen türü hangisidir?", "options": ["Gerçek deneysel desen", "Yarı deneysel desen", "Korelasyonel desen", "Tek denekli deneysel desen"], "correct": 1, "explanation": "Yarı deneysel desenler, seçkisiz atamanın etik, pratik veya mümkün olmadığı durumlarda (deprem sonrası destek, hastane uygulamaları gibi) kullanılır. Araştırmacı müdahale uygular ama seçkisiz atama olmadığı için tam kontrol sağlayamaz."}, {"difficulty": "zor", "topic": "Yarı Deneysel Desenler", "question": "Denk olmayan kontrol gruplu desen ile denk olmayan kontrol gruplu zaman dizisi deseni arasındaki temel fark nedir?", "options": ["Birincisinde seçkisiz atama vardır, ikincisinde yoktur", "İkincisinde hem kontrol grubu hem de tekrarlı (çoklu) ölçümler bulunur, bu da tarih etkisini daha iyi kontrol eder", "Birincisinde kontrol grubu yoktur", "İkincisi yalnızca tek denekli araştırmalarda kullanılır"], "correct": 1, "explanation": "Denk olmayan kontrol gruplu zaman dizisi deseni, hem kontrol grubunu hem de öncesi-sonrası çoklu ölçümleri (zaman dizisini) birleştirdiği için en güçlü yarı deneysel desendir ve tarih etkisini tek bir denk olmayan kontrol grubu desenine göre daha iyi kontrol eder."}, {"difficulty": "zor", "topic": "Yarı Deneysel Desenler", "question": "Bir okulda uygulanan yeni eğitim programının etkisini test eden araştırmacı, deney ve kontrol grubunun başlangıçta zaten akademik olarak farklı düzeylerde olduğunu ve bu grupların farklı hızlarda doğal gelişim gösterdiğini fark ediyor. Bu durum hangi tehdide bir örnektir?", "options": ["Seçim x tarih etkileşimi", "Seçim x olgunlaşma etkileşimi", "Diferansiyel istatistiksel regresyon", "Regresyon etkisi"], "correct": 1, "explanation": "Seçim x olgunlaşma etkileşimi, yarı deneysel desenlere özgü bir tehdittir: gruplar başlangıçta farklıysa, zamanla da farklı hızlarda doğal olarak gelişebilir (olgunlaşabilir), bu da müdahalenin etkisiyle karıştırılabilir."}, {"difficulty": "zor", "topic": "Program Değerlendirme", "question": "Kontrol grubundaki katılımcıların, deney grubuna verilen tedaviyi alamadıkları için moralinin bozulup performanslarının düşmesi, kirlenmenin hangi tepkisine örnektir?", "options": ["Deney grubunu taklit etme", "Çaba artırma", "Motivasyon kaybı", "Seçici denek kaybı"], "correct": 2, "explanation": "Motivasyon kaybı (resentful demoralization), kontrol grubunun tedaviyi alamadığı için moralinin düşmesi ve buna bağlı performans düşüklüğü yaşamasıdır. Çaba artırmada ise kontrol grubu tam tersine, 'bize vermediler ama yine de iyi olacağız' diyerek ekstra çaba gösterir."}, {"difficulty": "zor", "topic": "İstatistik ve Veri Analizi", "question": "Büyük bir örneklemle yapılan bir çalışmada p < .001 bulunmuş ancak gruplar arasındaki gerçek fark klinik açıdan çok küçüktür. Bu durum en iyi hangi ilkeyle açıklanır?", "options": ["p değeri her zaman etkinin büyüklüğünü de gösterir", "İstatistiksel anlamlılık (p değeri) ile pratik/klinik önem (etki büyüklüğü) farklı şeylerdir ve birlikte raporlanmalıdır", "Bu durum mutlaka bir Tip I hatadır", "Büyük örneklemlerde p değeri anlamsız hale gelir ve dikkate alınmamalıdır"], "correct": 1, "explanation": "p değeri farkın şansa bağlı olma olasılığını gösterirken, etki büyüklüğü farkın ne kadar güçlü olduğunu gösterir. Büyük örneklemlerde çok küçük farklar bile istatistiksel olarak anlamlı (düşük p) çıkabilir; bu yüzden p değeri ile etki büyüklüğü birlikte yorumlanmalıdır."}, {"difficulty": "zor", "topic": "İstatistik ve Veri Analizi", "question": "İki grup arasındaki farkın standart sapma cinsinden ifadesi olan ve Cohen tarafından d=0.80 ve üzeri değerlerin 'büyük etki' olarak yorumlandığı istatistik hangisidir?", "options": ["Cohen's f", "Korelasyon katsayısı (r)", "Cohen's d", "Eta kare (η²)"], "correct": 2, "explanation": "Cohen's d, iki grup ortalaması arasındaki farkın havuzlanmış standart sapmaya bölünmesiyle hesaplanır (d = (M1-M2)/SDpooled). d=0.20 küçük, d=0.50 orta, d=0.80 ve üzeri büyük etki olarak yorumlanır. Cohen's f ise 3 veya daha fazla grubun karşılaştırıldığı ANOVA'da kullanılır."}, {"difficulty": "zor", "topic": "İstatistik ve Veri Analizi", "question": "Bir çalışmanın %95 güven aralığı raporlanırken aralığın sıfırı içermesi ne anlama gelir?", "options": ["Gruplar arasında kesinlikle büyük bir fark vardır", "Gruplar arasında gerçek bir fark olmayabileceği anlamına gelir", "Örneklem büyüklüğü yetersizdir ve çalışma geçersizdir", "Etki büyüklüğü otomatik olarak büyük çıkmıştır"], "correct": 1, "explanation": "Güven aralığının sıfırı içermesi, gerçek fark değerinin sıfır olma ihtimalinin dışlanamadığı, yani gruplar arasında gerçek bir farkın olmayabileceği anlamına gelir. Dar bir güven aralığı daha hassas, geniş bir güven aralığı ise daha belirsiz bir tahmini gösterir."}, {"difficulty": "zor", "topic": "Örnekleme Yöntemleri", "question": "Bir araştırmacı, 200 öğrencilik bir evreni 10 farklı okula ayırıp bu okullardan yalnızca 3'ünü rastgele seçerek tüm öğrencilerini örnekleme dahil ediyor. Bu hangi örnekleme yöntemidir?", "options": ["Tabakalı (katmanlı) örnekleme", "Küme örnekleme", "Sistematik örnekleme", "Amaçlı örnekleme"], "correct": 1, "explanation": "Küme örneklemede bireyler tek tek değil, grupların (kümelerin, bu örnekte okulların) tamamı seçilir. Bu yöntem pratiktir (100 okul yerine 3 okul seçmek gibi). Tabakalı örneklemede ise evren alt gruplara ayrılır ve HER gruptan biraz örnek alınır; küme örneklemede bazı gruplar tamamen alınırken diğerleri hiç alınmaz."}, {"difficulty": "zor", "topic": "Örnekleme Yöntemleri", "question": "Bir araştırmacı katılımcı bulmakta zorlandığı için sosyal medyada duyuru yaparak gönüllü katılımcı topluyor. Bu örnekleme yönteminin en büyük riski nedir?", "options": ["Evreni mükemmel şekilde temsil etmesi", "Tepki (self-selection) yanlılığı; katılmak isteyenlerin sistematik olarak farklı özelliklere sahip olabilmesi", "Maliyetinin çok yüksek olması", "Nicel araştırmalarda hiç kullanılamaması"], "correct": 1, "explanation": "Gönüllü örneklemede yalnızca katılmak isteyenler örnekleme dahil olur; bu kişiler ilgi, motivasyon veya özellikleri bakımından evrenin geri kalanından sistematik olarak farklı olabilir. Bu durum self-selection (tepki) yanlılığı riskini doğurur ve genellenebilirliği zayıflatır."}, {"difficulty": "zor", "topic": "Anket Araştırmaları", "question": "Bir katılımcı ankette 'çevreyi koruduğunu' belirtmesine rağmen gerçekte hiç geri dönüşüm yapmıyor olabilir. Bu durum anketlerin hangi temel sınırlılığını gösterir?", "options": ["Sosyal beğenirlik", "Bildirilen davranış ile gerçek davranış arasındaki uyumsuzluk", "Hatırlama hatası", "Tepki yanlılığı"], "correct": 1, "explanation": "Bu örnek, kişinin ankette söylediği ile gerçekte yaptığı davranış arasındaki uyumsuzluğu gösterir. Sosyal beğenirlik ise kişinin gerçek düşüncesi yerine toplumca kabul gören cevabı vermesiyle ilgilidir; burada asıl vurgu, söylenen ile yapılan arasındaki farktır."}, {"difficulty": "zor", "topic": "Anket Araştırmaları", "question": "Aynı kişilerin farklı yaşlarda tekrar tekrar ölçüldüğü bir gelişim araştırması deseni ile farklı yaş gruplarından kişilerin tek seferde karşılaştırıldığı desen arasındaki temel fark, aşağıdaki benzetmelerden hangisiyle doğru özetlenir?", "options": ["Kesitsel = video kaydı, boylamsal = fotoğraf", "Kesitsel = fotoğraf, boylamsal = aynı kişinin video kaydı", "İkisi de aynı şeyi ölçer, fark yoktur", "Kesitsel bireysel değişimi en iyi gösteren desendir"], "correct": 1, "explanation": "Kesitsel desen tek bir anın 'fotoğrafı' gibidir (farklı kişiler tek seferde ölçülür), boylamsal desen ise aynı kişinin zaman içindeki 'video kaydı' gibidir (bireysel değişimi en iyi gösteren desendir). Ardışık bağımsız örneklemler ise 'farklı insanların zamanla çekilmiş fotoğrafları' gibidir."}, {"difficulty": "zor", "topic": "Gözlem Yöntemleri", "question": "Bir müze zemininde belirli bir bölgede aşırı aşınma tespit eden araştırmacı bunu 'o alanın çok ziyaret edildiği' şeklinde yorumluyor; ancak aslında o bölgede bir banka olduğu için insanlar orada durup bekliyor olabilir. Bu durum hangi riski gösterir?", "options": ["Seçici birikim", "Karıştırıcı etken / aldatıcı korelasyon riski", "Hawthorne etkisi", "Tepkisellik (reactivity)"], "correct": 1, "explanation": "Aşınma (erosion) ölçümlerinde, aşınmanın gerçek nedeni ziyaret sıklığı değil başka bir karıştırıcı etken (bu örnekte banka nedeniyle insanların orada durması) olabilir; bu da aldatıcı korelasyon riski doğurur. Seçici birikim ise birikim ölçümlerine özgü, bazı davranışların iz bırakırken bazılarının bırakmamasıyla ilgili bir sınırlılıktır."}];
+
+const letters = ["A", "B", "C", "D"];
+const container = document.getElementById("quiz-container");
+const answers = new Array(QUESTIONS.length).fill(null);
+let submitted = false;
+
+function render() {
+  container.innerHTML = "";
+  QUESTIONS.forEach((q, qi) => {
+    const card = document.createElement("div");
+    card.className = "question-card";
+    card.id = "q-" + qi;
+
+    const head = document.createElement("div");
+    head.className = "q-head";
+    const qNum = document.createElement("div");
+    qNum.className = "q-number";
+    qNum.textContent = "Soru " + (qi + 1) + " / " + QUESTIONS.length;
+    const badges = document.createElement("div");
+    badges.className = "badges";
+    const diffBadge = document.createElement("span");
+    diffBadge.className = "badge " + (q.difficulty === "zor" ? "zor" : "orta");
+    diffBadge.textContent = q.difficulty === "zor" ? "ZOR" : "ORTA";
+    const topicBadge = document.createElement("span");
+    topicBadge.className = "badge topic";
+    topicBadge.textContent = q.topic;
+    badges.appendChild(diffBadge);
+    badges.appendChild(topicBadge);
+    head.appendChild(qNum);
+    head.appendChild(badges);
+    card.appendChild(head);
+
+    const qText = document.createElement("div");
+    qText.className = "q-text";
+    qText.textContent = q.question;
+    card.appendChild(qText);
+
+    const optsWrap = document.createElement("div");
+    optsWrap.className = "options";
+
+    q.options.forEach((opt, oi) => {
+      const optDiv = document.createElement("div");
+      optDiv.className = "option";
+      optDiv.dataset.qi = qi;
+      optDiv.dataset.oi = oi;
+
+      const letterSpan = document.createElement("div");
+      letterSpan.className = "option-letter";
+      letterSpan.textContent = letters[oi];
+
+      const textSpan = document.createElement("div");
+      textSpan.className = "option-text";
+      textSpan.textContent = opt;
+
+      optDiv.appendChild(letterSpan);
+      optDiv.appendChild(textSpan);
+
+      optDiv.addEventListener("click", () => selectOption(qi, oi));
+
+      optsWrap.appendChild(optDiv);
+    });
+
+    card.appendChild(optsWrap);
+
+    const expDiv = document.createElement("div");
+    expDiv.className = "explanation";
+    expDiv.id = "exp-" + qi;
+    card.appendChild(expDiv);
+
+    container.appendChild(card);
+  });
+  updateProgress();
+}
+
+function selectOption(qi, oi) {
+  if (submitted) return;
+  answers[qi] = oi;
+  const card = document.getElementById("q-" + qi);
+  card.querySelectorAll(".option").forEach(el => {
+    el.classList.toggle("selected", parseInt(el.dataset.oi) === oi);
+  });
+  updateProgress();
+}
+
+function updateProgress() {
+  const answered = answers.filter(a => a !== null).length;
+  const pct = Math.round((answered / QUESTIONS.length) * 100);
+  document.getElementById("progress-bar-fill").style.width = pct + "%";
+  document.getElementById("progress-text").textContent = answered + " / " + QUESTIONS.length + " soru cevaplandı";
+}
+
+function gradeExam() {
+  submitted = true;
+  let correctCount = 0;
+  let ortaCorrect = 0, ortaTotal = 0, zorCorrect = 0, zorTotal = 0;
+
+  QUESTIONS.forEach((q, qi) => {
+    if (q.difficulty === "orta") ortaTotal++; else zorTotal++;
+    const card = document.getElementById("q-" + qi);
+    const userAnswer = answers[qi];
+    const isCorrect = userAnswer === q.correct;
+    if (isCorrect) {
+      correctCount++;
+      if (q.difficulty === "orta") ortaCorrect++; else zorCorrect++;
+    }
+
+    card.querySelectorAll(".option").forEach(el => {
+      const oi = parseInt(el.dataset.oi);
+      el.classList.add("locked");
+      if (oi === q.correct) {
+        el.classList.add("correct-answer");
+      } else if (oi === userAnswer && !isCorrect) {
+        el.classList.add("wrong-answer");
+      }
+    });
+
+    const expDiv = document.getElementById("exp-" + qi);
+    expDiv.classList.add("show");
+    expDiv.classList.add(isCorrect ? "correct-exp" : "wrong-exp");
+    const prefix = isCorrect ? "✓ Doğru cevap: " : "✗ Yanlış — Doğru cevap: ";
+    const correctLetterText = letters[q.correct] + ") " + q.options[q.correct];
+    expDiv.innerHTML = "<b>" + prefix + correctLetterText + "</b>" + q.explanation;
+  });
+
+  const resultsPanel = document.getElementById("results-panel");
+  resultsPanel.classList.add("show");
+  document.getElementById("score-big").textContent = correctCount + " / " + QUESTIONS.length;
+  const pct = Math.round((correctCount / QUESTIONS.length) * 100);
+  document.getElementById("score-percent").textContent = "Başarı Oranı: %" + pct;
+  document.getElementById("rb-orta").textContent = ortaCorrect + "/" + ortaTotal;
+  document.getElementById("rb-zor").textContent = zorCorrect + "/" + zorTotal;
+
+  document.getElementById("submit-btn").disabled = true;
+  resultsPanel.scrollIntoView({behavior: "smooth", block: "start"});
+}
+
+document.getElementById("submit-btn").addEventListener("click", () => {
+  const unanswered = answers.filter(a => a === null).length;
+  if (unanswered > 0) {
+    const proceed = confirm(unanswered + " soru henüz cevaplanmadı. Yine de sınavı bitirmek istiyor musunuz?");
+    if (!proceed) return;
+  }
+  gradeExam();
+});
+
+document.getElementById("reset-btn").addEventListener("click", () => {
+  location.reload();
+});
+
+render();
+</script>
+
+</body>
+</html>

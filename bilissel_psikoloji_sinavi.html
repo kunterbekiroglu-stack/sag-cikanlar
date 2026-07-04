@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bilişsel Psikoloji — Doktora Yeterlik Sınavı</title>
+<style>
+  :root {
+    --bg: #f5f6fb;
+    --panel: #ffffff;
+    --ink: #1f2430;
+    --muted: #6b7280;
+    --accent: #2f6fed;
+    --accent-dark: #1f56c4;
+    --orta: #2b8a3e;
+    --orta-bg: #e6f6ea;
+    --zor: #c0392b;
+    --zor-bg: #fdecea;
+    --correct: #1e8e3e;
+    --correct-bg: #e6f7ec;
+    --wrong: #d93025;
+    --wrong-bg: #fdeceb;
+    --border: #e3e6ee;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.55;
+  }
+  .wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 28px 20px 80px;
+  }
+  header.hero {
+    text-align: center;
+    padding: 34px 20px 26px;
+    background: linear-gradient(135deg, #2f6fed, #7aa6ff);
+    color: white;
+    border-radius: 18px;
+    margin-bottom: 28px;
+    box-shadow: 0 10px 30px rgba(47,111,237,0.25);
+  }
+  header.hero h1 {
+    margin: 0 0 8px;
+    font-size: 1.7rem;
+    font-weight: 700;
+  }
+  header.hero p {
+    margin: 4px 0;
+    opacity: 0.95;
+    font-size: 0.98rem;
+  }
+  .meta-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 16px;
+  }
+  .pill {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  #progress-container {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--bg);
+    padding: 12px 0 10px;
+  }
+  #progress-bar-bg {
+    background: #e2e4ee;
+    border-radius: 999px;
+    height: 10px;
+    overflow: hidden;
+  }
+  #progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #2f6fed, #8fb4ff);
+    width: 0%;
+    transition: width 0.25s ease;
+  }
+  #progress-text {
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .question-card {
+    background: var(--panel);
+    border-radius: 16px;
+    padding: 22px 22px 20px;
+    margin-bottom: 18px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+  }
+  .q-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .q-number {
+    font-weight: 700;
+    color: var(--accent-dark);
+    font-size: 0.95rem;
+  }
+  .badges { display:flex; gap:6px; flex-wrap: wrap; justify-content: flex-end;}
+  .badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .badge.orta { color: var(--orta); background: var(--orta-bg); }
+  .badge.zor { color: var(--zor); background: var(--zor-bg); }
+  .badge.topic { color: var(--muted); background: #eef0f7; }
+  .q-text {
+    font-size: 1.03rem;
+    font-weight: 600;
+    margin: 6px 0 16px;
+    color: var(--ink);
+  }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    background: #fdfdfe;
+  }
+  .option:hover:not(.locked) {
+    border-color: var(--accent);
+    background: #f0f5ff;
+  }
+  .option.selected {
+    border-color: var(--accent);
+    background: #e8f0ff;
+  }
+  .option-letter {
+    flex: 0 0 auto;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #e9ebf3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.82rem;
+    color: var(--ink);
+  }
+  .option.selected .option-letter {
+    background: var(--accent);
+    color: white;
+  }
+  .option-text { flex: 1; font-size: 0.95rem; padding-top: 3px; }
+  .option.correct-answer {
+    border-color: var(--correct);
+    background: var(--correct-bg);
+  }
+  .option.correct-answer .option-letter {
+    background: var(--correct);
+    color: white;
+  }
+  .option.wrong-answer {
+    border-color: var(--wrong);
+    background: var(--wrong-bg);
+  }
+  .option.wrong-answer .option-letter {
+    background: var(--wrong);
+    color: white;
+  }
+  .option.locked { cursor: default; }
+  .explanation {
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    display: none;
+    animation: fadein 0.3s ease;
+  }
+  .explanation.show { display: block; }
+  .explanation.correct-exp {
+    background: var(--correct-bg);
+    border-left: 4px solid var(--correct);
+    color: #145a28;
+  }
+  .explanation.wrong-exp {
+    background: var(--wrong-bg);
+    border-left: 4px solid var(--wrong);
+    color: #7a1f16;
+  }
+  .explanation b { display:block; margin-bottom: 4px; }
+  @keyframes fadein { from { opacity:0; transform: translateY(-4px);} to {opacity:1; transform: translateY(0);} }
+
+  #submit-area {
+    text-align: center;
+    margin: 30px 0 10px;
+  }
+  #submit-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(47,111,237,0.3);
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  #submit-btn:hover { background: var(--accent-dark); transform: translateY(-1px); }
+  #submit-btn:disabled { background: #b9cdf7; cursor: not-allowed; box-shadow:none; }
+
+  #results-panel {
+    display: none;
+    background: linear-gradient(135deg, #1f2430, #2d3a55);
+    color: white;
+    border-radius: 18px;
+    padding: 30px 26px;
+    text-align: center;
+    margin-bottom: 26px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  }
+  #results-panel.show { display: block; }
+  #results-panel h2 { margin: 0 0 6px; font-size: 1.5rem; }
+  #results-panel .score-big { font-size: 2.6rem; font-weight: 800; margin: 10px 0; }
+  .results-breakdown {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .rb-item { background: rgba(255,255,255,0.1); padding: 10px 18px; border-radius: 12px; min-width: 110px; }
+  .rb-item .num { font-size: 1.3rem; font-weight: 700; }
+  .rb-item .lbl { font-size: 0.78rem; opacity: 0.85; }
+
+  #reset-btn {
+    margin-top: 18px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.4);
+    color: white;
+    padding: 10px 22px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  #reset-btn:hover { background: rgba(255,255,255,0.25); }
+
+  .jump-hint {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 480px) {
+    header.hero h1 { font-size: 1.35rem; }
+    .question-card { padding: 16px 14px; }
+    .q-text { font-size: 0.98rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <h1>Bilişsel Psikoloji Sınavı</h1>
+    <p>Psikoloji Doktora Yeterlik Sınavına Hazırlık — Deneme Testi</p>
+    <div class="meta-bar">
+      <span class="pill">50 Soru</span>
+      <span class="pill">20 Orta Zorluk</span>
+      <span class="pill">30 Zor</span>
+      <span class="pill">Açıklamalı Cevap Anahtarı</span>
+    </div>
+  </header>
+
+  <div id="progress-container">
+    <div id="progress-bar-bg"><div id="progress-bar-fill"></div></div>
+    <div id="progress-text">0 / 50 soru cevaplandı</div>
+  </div>
+
+  <p class="jump-hint">Her soruyu cevapladığınızda seçiminiz işaretlenir. Tüm soruları cevapladıktan sonra en alttaki <b>"Sınavı Bitir ve Sonuçları Gör"</b> butonuna basarak doğru cevapları ve açıklamalarını görebilirsiniz.</p>
+
+  <div id="quiz-container"></div>
+
+  <div id="submit-area">
+    <button id="submit-btn">Sınavı Bitir ve Sonuçları Gör</button>
+  </div>
+
+  <div id="results-panel">
+    <h2>Sınav Sonucunuz</h2>
+    <div class="score-big" id="score-big">0 / 50</div>
+    <div id="score-percent" style="font-size:1.1rem; opacity:0.9;"></div>
+    <div class="results-breakdown">
+      <div class="rb-item"><div class="num" id="rb-orta">0/20</div><div class="lbl">Orta Zorluk Doğru</div></div>
+      <div class="rb-item"><div class="num" id="rb-zor">0/30</div><div class="lbl">Zor Doğru</div></div>
+    </div>
+    <button id="reset-btn">Sınavı Yeniden Başlat</button>
+  </div>
+
+</div>
+
+<script>
+const QUESTIONS = [{"difficulty": "orta", "topic": "Bilişsel Psikolojinin Kökeni", "question": "Wundt'un psikolojiyi incelemek için kullandığı ve zihinsel süreçlerin kişinin kendisi tarafından gözlemlenip rapor edilmesine dayanan yöntem hangisidir?", "options": ["Davranışsal gözlem", "İçe bakış (introspection)", "Gölgeleme tekniği", "Bilişsel görüşme"], "correct": 1, "explanation": "Wundt, zihni incelemek için içe bakış (introspection) yöntemini kullanmıştır; bu yöntemde katılımcı kendi zihinsel süreçlerini gözlemleyerek rapor eder. Ancak bu yöntem tutarsızlık, sınırlı araştırma alanı ve bilincin sınırlılığı gibi ciddi sorunlar taşımaktadır."}, {"difficulty": "orta", "topic": "Bilişsel Psikolojinin Kökeni", "question": "İçe bakış yönteminin en önemli sınırlılığı olarak kabul edilen ve zihinsel süreçlerin büyük kısmının farkındalık dışında gerçekleştiğini ifade eden sorun hangisidir?", "options": ["Araştırma alanının daralması", "Bilincin sınırlılığı", "Tutarsızlık problemi", "Objektif olmama"], "correct": 1, "explanation": "İçe bakış yönteminin en önemli sorunu bilincin sınırlılığıdır: bu yöntem yalnızca bilince yansıyan zihinsel süreçleri inceleyebilir, oysa zihinsel süreçlerin büyük bir kısmı farkındalık dışında gerçekleşir (zihin bir buzdağı gibidir)."}, {"difficulty": "orta", "topic": "Davranışçılığın Ortaya Çıkışı", "question": "Watson'a göre psikolojinin konusu ne olmalıdır?", "options": ["Bilinç ve zihinsel süreçler", "Yalnızca gözlenebilen ve ölçülebilen davranışlar", "Bilinçdışı çatışmalar", "Bireyin öznel deneyimleri"], "correct": 1, "explanation": "Watson'a göre psikolojinin konusu sadece gözlenebilen ve ölçülebilen davranışlar olmalıdır; gözlenemeyen hiçbir şey (algı, dikkat, bellek gibi) psikolojinin konusu olmamalıdır. Bu görüş davranışçılığın temelini oluşturur."}, {"difficulty": "orta", "topic": "Duyusal Bellek", "question": "Görsel duyusal bellek (ikonik bellek) bilgiyi yaklaşık ne kadar süre tutabilir?", "options": ["Yaklaşık 4 saniye", "Yaklaşık 20-30 saniye", "Yaklaşık 1 saniye", "Sınırsız süre"], "correct": 2, "explanation": "Görsel duyusal bellek (ikonik bellek) bir görüntüyü yaklaşık 1 saniye boyunca tutabilirken, işitsel duyusal bellek (ekoik bellek) bu süreyi yaklaşık 4 saniyeye kadar sürdürebilir."}, {"difficulty": "orta", "topic": "Duyusal Bellek", "question": "Sperling'in kısmi bildirim (partial report) tekniğiyle yaptığı deneyin temel bulgusu nedir?", "options": ["Görsel belleğin kapasitesi çok küçüktür ve sadece 4-5 harfi kapsar", "Görsel belleğin kapasitesi geniştir ama bilgi çok hızlı (yaklaşık yarım saniyede) silinir", "İşitsel bellek görsel bellekten daha kısa sürelidir", "İnsanlar yalnızca dikkat ettikleri satırı görebilir"], "correct": 1, "explanation": "Sperling'in kısmi bildirim tekniği, ikonik belleğin kapasitesinin aslında çok geniş olduğunu ancak bu bilginin çok hızlı (yaklaşık 0.5 saniye içinde) silindiğini göstermiştir. Tam bildirimde katılımcılar sadece 4-5 harf söyleyebildiği için başta kapasitenin küçük olduğu düşünülmüştü."}, {"difficulty": "orta", "topic": "Dikkat", "question": "Broadbent'in sınırlı kapasiteli filtre modeline göre dikkat nasıl çalışır?", "options": ["Dikkat edilmeyen bilgi zayıflatılarak işlenmeye devam eder", "Dikkat, bilgiyi erken aşamada fiziksel özelliklere göre seçer ve seçilmeyen bilgiye sistem tamamen kapanır", "Dikkat, bilgiyi anlamsal düzeyde seçer", "Zihin aynı anda sınırsız sayıda bilgiyi işleyebilir"], "correct": 1, "explanation": "Broadbent'e göre dikkat, bilgiyi erken bir aşamada fiziksel özelliklerine (sesin yönü, şiddeti gibi) göre seçen bir filtre gibi çalışır; seçilmeyen kanaldaki bilgiye sistem tamamen kapanır ve bu bilgi işlenmez."}, {"difficulty": "orta", "topic": "Dikkat", "question": "Treisman'ın zayıflatma (attenuation) kuramına göre, dikkat edilmeyen bilgiye ne olur?", "options": ["Tamamen ve kalıcı olarak engellenir, hiç işlenmez", "Tamamen kapanmaz; zayıflatılmış biçimde işlenmeye devam eder", "Dikkat edilen bilgiden daha güçlü işlenir", "Yalnızca fiziksel özellikleri işlenir, anlamı hiç işlenmez"], "correct": 1, "explanation": "Treisman'a göre dikkat edilmeyen bilgi tamamen kapanmaz, sadece zayıflatılır (attenuate edilir). Bu nedenle kişinin ismi gibi eşiği düşük olan uyarılar, dikkat edilmese bile fark edilebilir (kokteyl parti etkisi)."}, {"difficulty": "orta", "topic": "Dikkat", "question": "'Kokteyl parti etkisi' hangi kavramı örneklendirir?", "options": ["Dikkat edilmeyen bilginin tamamen filtrelendiğini", "Dikkat edilmeyen bilginin bilinç dışı düzeyde işlenmeye devam ettiğini", "Kısa süreli belleğin kapasitesinin sınırsız olduğunu", "Otomatik işlemenin var olmadığını"], "correct": 1, "explanation": "Kokteyl parti etkisinde, kalabalık bir ortamda dikkat etmediğimiz konuşmalar arasında birisi ismimizi söylediğinde hemen fark ederiz. Bu, dikkat edilmeyen bilginin tamamen filtrelenmediğini, zayıflatılmış biçimde işlenmeye devam ettiğini gösterir."}, {"difficulty": "orta", "topic": "Kısa Süreli Bellek", "question": "Peterson & Peterson deneyinde, katılımcılara anlamsız hecelerin ardından geriye sayma yaptırılmasının amacı nedir?", "options": ["Katılımcıların dikkatini dağıtarak içten tekrarı (rehearsal) engellemek", "Katılımcıların kaygı düzeyini artırmak", "Katılımcıların uzun süreli belleğini test etmek", "Katılımcıların anlamsal kodlama yapmasını sağlamak"], "correct": 0, "explanation": "Peterson & Peterson deneyinde geriye sayma, katılımcıların hecevi içten tekrar etmesini (rehearsal) engellemek için kullanılır. Bu sayede kısa süreli belleğin gerçek süresi ölçülebilmiştir; sonuçlar zaman geçtikçe hatırlamanın hızla düştüğünü göstermiştir."}, {"difficulty": "orta", "topic": "Kısa Süreli Bellek", "question": "George Miller'ın kısa süreli belleğin kapasitesiyle ilgili ünlü kuralı nedir?", "options": ["20-30 saniye", "7 ± 2 birim", "3-4 birim", "Sınırsız kapasite"], "correct": 1, "explanation": "George Miller'a göre kısa süreli belleğin kapasitesi 7 ± 2 birimdir (yani yaklaşık 5-9 birim arasında). Chunking (kümeleme) tekniğiyle bu kapasite artmaz ama daha fazla bilgi taşınabilir, çünkü her grup tek bir birim olarak kodlanır."}, {"difficulty": "orta", "topic": "Çalışma Belleği", "question": "Baddeley'in çalışma belleği modelinde, dikkati yönlendiren, strateji seçen ve diğer alt sistemleri koordine eden bileşen hangisidir?", "options": ["Fonolojik döngü", "Görsel-mekânsal döngü", "Merkezi yürütücü", "Epizodik döngü"], "correct": 2, "explanation": "Merkezi yürütücü (central executive), dikkati yönlendiren, strateji seçen, bilgileri birleştiren ve diğer alt sistemleri (fonolojik döngü, görsel-mekânsal döngü) koordine eden bileşendir."}, {"difficulty": "orta", "topic": "Uzun Süreli Bellek", "question": "Uzun süreli bellekte 'dünya hakkında genel bilgiler' içeren, kişisel yaşantıdan bağımsız ve yer-zaman bilgisi içermeyen bellek türü hangisidir?", "options": ["Epizodik bellek", "Semantik bellek", "Örtük (implicit) bellek", "İşlemsel bellek"], "correct": 1, "explanation": "Semantik bellek, dünya hakkında genel bilgileri (örn. 'Fransa'nın başkenti Paris'tir') içerir; kişisel yaşantıdan bağımsızdır ve yer-zaman bilgisi içermez. Epizodik bellek ise kişisel yaşantılarla ilgilidir ve yer-zaman bilgisi içerir."}, {"difficulty": "orta", "topic": "Bellek Fenomenleri", "question": "Bir kelimeyi bildiğini hissedip söyleyemediğin, ilk harfini ve hece sayısını bilebildiğin ancak kelimenin tamamını hatırlayamadığın durum hangi fenomenle adlandırılır?", "options": ["Kaynak hatası", "Dilin ucunda fenomeni (Tip of the Tongue)", "Kriptomnezi", "Fuzzy trace"], "correct": 1, "explanation": "Dilin ucunda (tip of the tongue) fenomeni, bilginin kodlanmış ve saklanmış olduğu ama geri getirilemediği durumu gösterir. Kişi kelimenin ilk harfini veya hece sayısını bilebilir ama kelimeyi tam olarak hatırlayamaz."}, {"difficulty": "orta", "topic": "İşleme Düzeyi (LOP)", "question": "Craik ve Lockhart'ın İşleme Düzeyi (Level of Processing) kuramına göre, bir bilginin uzun süreli bellekte kalıcı olmasını en çok ne belirler?", "options": ["Bilginin kaç kez tekrar edildiği", "Bilginin işlenme derinliği (anlamsal mı yoksa biçimsel mi kodlandığı)", "Bilginin sunulduğu modalite", "Bilginin ne kadar kısa olduğu"], "correct": 1, "explanation": "Craik ve Lockhart'a göre bilgi ne kadar derin (anlamsal) işlenirse o kadar kalıcı olur; sığ (biçimsel/fiziksel) kodlanan bilgi ise çabuk unutulur. Deneylerde anlamsal görevler yapan katılımcılar, biçimsel veya fonetik görev yapanlara göre çok daha iyi hatırlama göstermiştir."}, {"difficulty": "orta", "topic": "Seri Konum Etkisi", "question": "Bir dizi kelime öğrenildikten sonra hatırlama performansının 'U' şeklinde bir eğri göstermesi, yani baştaki ve sondaki kelimelerin daha iyi hatırlanması hangi olguyla açıklanır?", "options": ["Fuzzy trace teorisi", "Seri konum etkisi (serial position effect) - başlangıç ve yenilik etkileri", "Kaynak izleme hatası", "Otomatik işleme"], "correct": 1, "explanation": "Seri konum etkisinde, dizinin başındaki kelimeler uzun süreli bellekten (başlangıç/primacy etkisi), sonundaki kelimeler ise kısa süreli bellekten (yenilik/recency etkisi) hatırlanır. Bu, kısa süreli ve uzun süreli bellek olmak üzere iki ayrı bellek sisteminin varlığına psikolojik kanıt sağlar."}, {"difficulty": "orta", "topic": "Bellek Yanılsaması", "question": "Bartlett'in 'War of the Ghosts' deneyinde ortaya çıkan ve belleğin bir kayıt cihazı gibi çalışmadığını, aksine bilgiyi yeniden kurduğunu gösteren kavram hangisidir?", "options": ["Kaynak izleme hatası", "Yeniden kurucu (reconstructive) bellek", "Fuzzy trace teorisi", "Priming"], "correct": 1, "explanation": "Bartlett'in deneyi, belleğin bir kayıt cihazı gibi çalışmadığını, aksine bilginin kişinin kendi şemalarına, kültürüne ve beklentilerine göre yeniden kurulduğunu (reconstructive memory) göstermiştir. Katılımcılar hikâyeyi kendi bildikleri dünyaya göre değiştirmiştir."}, {"difficulty": "orta", "topic": "Açık ve Örtük Bellek", "question": "Açık (explicit/declarative) bellek ile örtük (implicit/non-declarative) bellek arasındaki temel ayrım nedir?", "options": ["Açık bellek bilinçli olarak sözel ifade edilebilirken, örtük bellek sözel olarak ifade edilemez ama davranışta gösterilir", "Açık bellek sadece duygusal anıları, örtük bellek sadece mantıksal bilgileri içerir", "Açık bellek kısa süreli, örtük bellek uzun süredir", "İkisi arasında hiçbir fark yoktur"], "correct": 0, "explanation": "Açık (declarative) bellek -semantik ve epizodik bellekten oluşur- bilinçli olarak hatırlanıp sözel olarak ifade edilebilir. Örtük (implicit) bellek ise (işlemsel bellek, priming, klasik koşullanma) sözel olarak ifade edilemez, ancak davranışta (icra ederek) gösterilir."}, {"difficulty": "orta", "topic": "Amnezi", "question": "H.M. vakası bellek araştırmalarında hangi bulguyu göstermesi açısından kritik öneme sahiptir?", "options": ["Hipokampusun bilgiyi depolayan yer olduğunu", "Hipokampus hasar görürse yeni anı oluşturulamadığını (anterograd amnezi) ama eski anıların ve işlemsel belleğin korunduğunu", "Kısa süreli belleğin de kalıcı olarak zarar gördüğünü", "Amnezi hastalarının işlemsel bellek öğrenemediğini"], "correct": 1, "explanation": "H.M. vakası, hipokampusun bilgiyi depolayan yer olmadığını, yeni anıların oluşturulmasını sağlayan bir sistem olduğunu göstermiştir. H.M. yeni anı oluşturamıyordu (anterograd amnezi) ama geçmiş anıları ve yeni motor beceriler öğrenme (işlemsel bellek) yeteneği korunmuştu; bu da açık ve örtük belleğin farklı sistemler olduğunu kanıtlamıştır."}, {"difficulty": "orta", "topic": "Amnezi", "question": "Retrograd amnezi ile anterograd amnezi arasındaki fark nedir?", "options": ["Retrograd amnezide yeni anı oluşturulamaz, anterogradda geçmiş anılar unutulur", "Retrograd amnezide geçmiş anılar unutulur, anterogradda yeni anı oluşturulamaz", "İkisi aynı zamanda birlikte görülür", "Retrograd amnezi sadece fiziksel travmadan kaynaklanır"], "correct": 1, "explanation": "Retrograd (geriye dönük) amnezide kişi geçmiş anılarını unutur. Anterograd (ileriye dönük) amnezide ise kişi yeni anı oluşturamaz. Bu iki durum bir amnezi vakasında genellikle birlikte görülmez."}, {"difficulty": "orta", "topic": "Libet Deneyi ve Özgür İrade", "question": "Libet'in deneyinde, parmak hareketinden önce beyinde ortaya çıkan ve niyetin nörolojik karşılığı olarak yorumlanan erken aktiviteye ne ad verilir?", "options": ["Hazırlık potansiyeli (readiness potential)", "Aksiyon potansiyeli", "Eşik altı algı", "Retiküler aktivasyon"], "correct": 0, "explanation": "Hazırlık potansiyeli (readiness potential), parmak hareketinden yaklaşık 700-800 ms önce beyinde başlayan aktivite artışıdır. Libet'in deneyi, bu aktivitenin kişinin niyetinin bilinçli olarak farkına varmasından (yaklaşık 300-350 ms önce) bile daha erken başladığını göstermiştir."}, {"difficulty": "zor", "topic": "Davranışçılık ve Gestalt", "question": "Köhler'in tavuk deneyinde, tavuğun önceden öğrendiği koyu griden daha koyu bir gri ile karşılaştığında doğrudan en koyu griye gitmesi hangi görüşü destekler?", "options": ["Davranışçılığın S-R (uyarıcı-tepki) bağı görüşünü", "Tavuğun belirli bir rengi ezberlemek yerine 'daha koyu olanı seç' şeklinde bir kural/ilke öğrendiğini", "Klasik koşullanmanın davranışı tam olarak açıkladığını", "Tavuğun rastgele davrandığını"], "correct": 1, "explanation": "Bu deney, tavuğun mekanik bir uyarıcı-tepki bağı kurmadığını, aksine 'iki seçenekten daha koyu olanı seç' şeklinde göreli bir kural/ilke kavradığını göstermiştir. Bu durum, katı davranışçılığa karşı Gestaltçıların savunduğu 'öğrenme sadece koşullanma değildir, organizma ilişkileri de kavrar' görüşünü destekler."}, {"difficulty": "zor", "topic": "Ebbinghaus ve Unutma", "question": "Ebbinghaus'un 'saving' (tasarruf) kavramı neyi göstermektedir?", "options": ["Unutulan bilginin tamamen silindiğini ve tekrar öğrenmenin ilk öğrenmeyle aynı sürede gerçekleştiğini", "Tamamen unutulmuş gibi görünen bir bilginin yeniden öğrenilirken daha az tekrar gerektirdiğini, yani bilginin iz bıraktığını", "Uzun süreli belleğin kapasitesinin sınırlı olduğunu", "Kısa süreli belleğin süresinin sabit olduğunu"], "correct": 1, "explanation": "Saving (tasarruf), bir liste tamamen unutulmuş gibi görünse bile, tekrar öğrenildiğinde ilk öğrenmeye göre daha az tekrar gerektirmesidir (örn. ilk öğrenme 25 tekrar, ikinci öğrenme 20 tekrar). Bu, bilginin tamamen silinmediğini, bellekte iz bıraktığını gösterir."}, {"difficulty": "zor", "topic": "Unutma Teorileri", "question": "Waugh & Norman'ın rakam dizileriyle yaptığı deneyde, hızlı ve yavaş sunum koşulları arasında unutma miktarının neredeyse aynı çıkması, hangi teoriyi desteklememektedir?", "options": ["Girişim (interference) teorisini", "Zamanla bozulma (decay) teorisini", "Fuzzy trace teorisini", "Seri konum etkisini"], "correct": 1, "explanation": "Eğer unutmanın nedeni yalnızca geçen zaman (decay) olsaydı, daha uzun süre geçen yavaş sunum koşulunda daha fazla unutma görülmesi gerekirdi. Ancak her iki koşulda da unutma neredeyse aynı çıkmıştır; bunun yerine araya giren item sayısı arttıkça unutmanın arttığı bulunmuş, bu da decay teorisini değil interference (girişim) teorisini desteklemiştir."}, {"difficulty": "zor", "topic": "Sternberg Deneyi", "question": "Sternberg'in kısa süreli bellekte arama deneyinde, hedef öğe listede olsa da olmasa da, listenin başında, ortasında ya da sonunda olsa da tepki süresinin aynı çıkması hangi sonuca işaret eder?", "options": ["Arama paralel ve kısmi (self-terminating) şekilde yapılır", "Arama seri ve kapsamlı (exhaustive) şekilde yapılır; sistem hedefi bulsa bile taramayı sonuna kadar sürdürür", "Kısa süreli bellekte arama yapılmaz, bilgi doğrudan geri çağrılır", "Tepki süresi tamamen rastgeledir"], "correct": 1, "explanation": "Sternberg deneyinin en kritik bulgusu, hedefin listede olup olmamasının veya konumunun tepki süresini etkilememesidir. Bu, aramanın seri (tek tek) ve kapsamlı (exhaustive) olduğunu gösterir; yani sistem hedefi bulduktan sonra bile taramayı durdurmadan sonuna kadar sürdürür (silecek analojisi)."}, {"difficulty": "zor", "topic": "Ket Vurmadan Kurtulma", "question": "Lillestrom (ket vurmadan kurtulma) deneyinde, art arda çiçek isimleri verildikten sonra dördüncü aşamada balık isimleri verildiğinde performansın aniden yükselmesi neyi göstermektedir?", "options": ["Kısa süreli bellekte sadece işitsel/görsel kodlama yapıldığını", "Kısa süreli bellekte anlamsal (kategorisel) kodlamanın da yapıldığını; kategori değişince proaktif ket vurmadan kurtulma (release from proactive inhibition) gerçekleştiğini", "Chunking'in kapasiteyi artırdığını", "Uzun süreli belleğin sınırsız olduğunu"], "correct": 1, "explanation": "Aynı kategoriden (çiçek) itemler tekrarlandıkça performans düşer (proaktif ket vurma artar); kategori değiştiğinde (balık) performansın aniden yükselmesi, zihnin kategoriyi yani anlamı işlediğini gösterir. Bu da kısa süreli bellekte sadece fiziksel/işitsel değil, anlamsal kodlamanın da yapıldığının kanıtıdır."}, {"difficulty": "zor", "topic": "Seri Konum Etkisi", "question": "Murdock'un seri konum deneylerinde, araya dikkat dağıtıcı bir aritmetik görev eklendiğinde 'yenilik etkisinin' kaybolması neyi kanıtlar?", "options": ["Yenilik etkisinin kısa süreli bellekten kaynaklandığını", "Yenilik etkisinin uzun süreli bellekten kaynaklandığını", "Başlangıç etkisinin ortadan kalktığını", "Chunking'in etkisiz olduğunu"], "correct": 0, "explanation": "Listedeki son kelimeler henüz kısa süreli bellektedir (yenilik/recency etkisi). Araya dikkat dağıtıcı bir görev (aritmetik işlem) girdiğinde bu kısa süreli bellekteki bilgi kaybolur ve yenilik etkisi ortadan kalkar. Bu durum, yenilik etkisinin kısa süreli bellekten kaynaklandığının kanıtıdır. Tekrar sayısının manipüle edilmesiyle başlangıç etkisinin değişmesi ise uzun süreli belleği kanıtlar."}, {"difficulty": "zor", "topic": "Bellek Yanılmalarının Teorik Açıklaması", "question": "DRM paradigmasında (gece-yorgunluk-yastık-yatak gibi kelimeler verilip 'uyku' kelimesinin de hatırlanması), bu bellek yanılmasını en iyi açıklayan teori hangisidir?", "options": ["Fuzzy trace teorisi (belirsiz iz teorisi)", "Dolaylı aktivasyon teorisi (implicit association response) - anlamsal olarak bağlantılı kavramların otomatik olarak aktive olması", "Kodlama özgüllüğü teorisi", "Level of processing teorisi"], "correct": 1, "explanation": "DRM paradigmasındaki yanılma, dolaylı aktivasyon teorisiyle (implicit association response) açıklanır: bir uyarımla karşılaşıldığında onunla anlamsal olarak bağlantılı diğer kavramlar da (bu örnekte 'uyku') otomatik olarak aktive olur ve bu aktivasyon belleğe kaydedilen yapının bir parçası haline gelir; kişi hiç sunulmamış bu bilgiyi de hatırlayabilir."}, {"difficulty": "zor", "topic": "Bellek Yanılmalarının Teorik Açıklaması", "question": "Bir kişinin, aslında hiç yaşamadığı ama başkasından dinlediği travmatik bir olayı kendisi yaşamış gibi hatırlaması hangi kavramla açıklanır?", "options": ["Fuzzy trace teorisi", "Kaynak izleme hatası (source monitoring error)", "Priming", "Level of processing"], "correct": 1, "explanation": "Kaynak izleme hatasında (source monitoring), bilgi zihinde kaydedilir ama bu bilginin kaynağı (bağlamı) doğru şekilde kaydedilmeyebilir. Kişi bir bilgiyi gerçekten mi yaşadığını yoksa başkasından mı duyduğunu ayırt edemeyebilir; bu da başkasının yaşadığı bir olayı kendi anısıymış gibi hatırlamasına yol açabilir."}, {"difficulty": "zor", "topic": "Fuzzy Trace Teorisi", "question": "Güllaç örneğinde, kişinin zamanla bu tatlıyı 'sütlaç' olarak hatırlaması ama asla 'çay içtik' şeklinde hatırlamaması hangi teoriyle açıklanır?", "options": ["Fuzzy trace teorisi: fiziksel (verbatim) kodlama zamanla kaybolur ama anlamsal (gist) kodlama - 'tatlı' kategorisi - korunur", "Kaynak izleme hatası: kaynak tamamen unutulmuştur", "Dolaylı aktivasyon teorisi: sütlaç kelimesi otomatik olarak aktive olmuştur", "Level of processing: sütlaç daha derin kodlanmıştır"], "correct": 0, "explanation": "Fuzzy trace teorisine göre bilgi hem fiziksel (verbatim/birebir detay) hem de anlamsal (gist/genel anlam) olarak eşzamanlı kodlanır, ancak fiziksel kodlama daha kırılgandır ve daha hızlı kaybolur. Güllaç örneğinde fiziksel detay kaybolduğu için kişi 'sütlaç' diyebilir, ama 'tatlı' kategorisi (anlamsal/gist yapı) korunduğu için asla 'çay içtik' demez."}, {"difficulty": "zor", "topic": "İşleme Düzeyi (LOP)", "question": "Craik & Lockhart'ın işleme düzeyi (LOP) kuramına yöneltilen en temel eleştiri nedir?", "options": ["Deneysel olarak hiç test edilememesi", "Derinlik kavramının bağımsız/objektif bir tanımının olmaması; 'neden daha çok hatırlandı-çünkü derin kodlandı' şeklinde döngüsel (totolojik) bir açıklama içermesi", "Yalnızca kelimelerle test edilmiş olması", "Anlamsal kodlamanın hiçbir zaman biçimsel kodlamadan daha iyi hatırlanmaması"], "correct": 1, "explanation": "LOP kuramına yönelik temel eleştiri, 'derinlik' kavramının bağımsız ve objektif bir tanımının olmamasıdır. 'Neden daha çok hatırladı? Çünkü derin kodlandı. Derin kodlandığını nereden biliyoruz? Çünkü daha çok hatırladı' şeklinde bir totoloji (döngüsel açıklama) oluşur."}, {"difficulty": "zor", "topic": "Semantik ve Epizodik Bellek", "question": "Motosiklet kazası sonrası satranç oynamayı mükemmel bilen ama daha önce oynadığına dair hiçbir anısı olmayan kişi örneği, hangi ayrımı en net şekilde kanıtlar?", "options": ["Kısa süreli bellek ile uzun süreli belleğin ayrı sistemler olduğunu", "Semantik bellek ile epizodik belleğin birbirinden bağımsız sistemler olduğunu", "Açık bellek ile örtük belleğin aynı sistem olduğunu", "Retrograd ve anterograd amnezinin birlikte görüldüğünü"], "correct": 1, "explanation": "Bu vaka, Tulving'in semantik ve epizodik belleğin birbirinden bağımsız sistemler olduğu görüşünü destekler: kişi satranç oynamayı (semantik/işlemsel bilgi) mükemmel bilirken, bunu öğrendiği olaya dair hiçbir epizodik anısı yoktur."}, {"difficulty": "zor", "topic": "Otobiyografik Bellek", "question": "Otobiyografik bellekte 'anı tümseği' (reminiscence bump) olgusuna dair, hocanın daha ikna edici bulduğu açıklama hangisidir?", "options": ["Yaşantısal açıklama: bu yaşlarda kimlik oluşumu ve önemli kararlar yaşanır", "Nörolojik açıklama: 15-25 yaş aralığında sinir sisteminin ve zihinsel kapasitenin en güçlü dönemde olması", "Yakın zaman etkisi: bu yaşlardaki anılar her zaman en yakın zamanda kalmıştır", "Sosyal öğrenme açıklaması: çevre bu yaşlardaki olayları daha çok anlatır"], "correct": 1, "explanation": "Anı tümseğinin (15-25 yaş aralığında anıların yoğunlaşması) nörolojik açıklaması, bu yaş aralığında sinir sisteminin ve zihinsel kapasitenin en güçlü dönemde olmasıdır; metinde bu açıklamanın hoca tarafından daha ikna edici bulunduğu belirtilmektedir. Grafiğin sonundaki yükselme ise ayrı bir olgu olan yakın zaman (recency) etkisiyle açıklanır."}, {"difficulty": "zor", "topic": "Örtük Bellek ve Priming", "question": "Priming (hazırlama) deneylerinde, katılımcıların daha önce gördükleri ancak bilinçli olarak hatırlayamadıkları kelimeleri, eksik harflerle tamamlama görevinde daha hızlı tamamlaması hangi bellek sistemine kanıt sağlar?", "options": ["Açık (explicit) bellek", "Örtük (implicit) bellek", "Çalışma belleği", "Duyusal bellek"], "correct": 1, "explanation": "Priming, örtük belleğin bir örneğidir: kişi önceki kelimeyi bilinçli olarak hatırlamasa bile (açık bellek başarısız olsa bile), önceki deneyim davranışını (kelime tamamlama hızını) etkilemeye devam eder. Bu, kişinin farkında olmadığı bir etkinin davranışta gözlemlenebildiğini gösterir."}, {"difficulty": "zor", "topic": "Amnezi ve Bellek Bozulma Sırası", "question": "Amnezi ve bellek bozulmasının sırasına göre, bir amnezi vakasında genellikle en son kaybolan bellek türü hangisidir?", "options": ["Epizodik bellek", "Semantik bellek", "İşlemsel (procedural) bellek", "Kısa süreli bellek"], "correct": 2, "explanation": "Bellek kaybı belirli bir sırayla ilerler: önce epizodik bellek zayıflar, sonra semantik bellek etkilenir, en son ise işlemsel (procedural/beceri) bellek kaybolur. İşlemsel bellek en dayanıklı bellek türüdür; ayrıca düşünsel anılar önce, duygusal anılar en son kaybolur."}, {"difficulty": "zor", "topic": "Amnezi Türleri", "question": "Fiziksel travma sonucu oluşan (organik) amnezi ile duygusal travma sonucu oluşan (fonksiyonel/psikojenik) amnezi arasındaki temel fark nedir?", "options": ["Organik amnezi genellikle anterograd, fonksiyonel/psikojenik amnezi genellikle retrograddır", "Organik amnezi genellikle retrograd, fonksiyonel/psikojenik amnezi genellikle anterograddır", "İkisi de her zaman aynı tür amneziye yol açar", "Fonksiyonel amnezi her zaman kalıcıdır, organik amnezi geçicidir"], "correct": 0, "explanation": "Fiziksel/organik travma (hipokampus hasarı gibi) genellikle anterograd amneziye (yeni anı oluşturamama) yol açar. Duygusal travma sonucu oluşan fonksiyonel (psikojenik) amnezide ise kişi geçmişini kısmen ya da tamamen unutabilir (retrograd amnezi) ama yeni anılar normal şekilde oluşturulabilir."}, {"difficulty": "zor", "topic": "EKT ve Bellek", "question": "Elektrokonvülsif şok tedavisinin (EKT) bellek üzerindeki etkisiyle ilgili en doğru ifade hangisidir?", "options": ["Belleği hiç etkilemez", "Belleği ciddi şekilde etkiler; tedavi sonrası bellek genellikle 2-6 ay arasında toparlanır ama tam olarak eski haline döndüğü kesin olarak kanıtlanamaz", "Bellek kaybı asla geri dönmez", "Sadece işlemsel belleği etkiler"], "correct": 1, "explanation": "EKT ağır depresyon vakalarında uygulanan ve belleği ciddi şekilde etkileyen bir tedavidir. Bellek genellikle 2-6 ay arasında toparlanır, ancak kişinin tedavi öncesi bildiği her şeyi test etmek mümkün olmadığından, belleğin tam olarak eski haline döndüğü kesin olarak kanıtlanamaz."}, {"difficulty": "zor", "topic": "Mozart Etkisi", "question": "Mozart etkisi araştırmasındaki en büyük metodolojik problem nedir?", "options": ["Örneklem büyüklüğünün çok küçük olması", "Kontrol grubunun hiçbir şey yapmaması; bu nedenle bulunan farkın Mozart müziğinden değil, genel uyarılma (arousal) etkisinden kaynaklanabilmesi", "Zeka testinin geçersiz olması", "Deneyin hiç tekrarlanamamış olması"], "correct": 1, "explanation": "Mozart etkisi araştırmasının temel problemi, kontrol grubunun hiçbir şey yapmamasıdır (deney grubu Mozart dinlerken kontrol grubu hiçbir uyarana maruz kalmamıştır). Bu nedenle bulunan performans farkının Mozart müziğinin özel bir etkisinden değil, genel bir uyarılma (arousal) etkisinden kaynaklanabileceği düşünülür; Mozart etkisi bir IQ/kapasite artışı değil, uyarılma etkisidir."}, {"difficulty": "zor", "topic": "Bellek Kapasitesi ve Chunking", "question": "Bellek kapasitesinin genişletilebilirliğiyle ilgili yapılan deneyde, katılımcı chunking stratejisiyle 79 rakamı hatasız söyleyebilir hale geldiğinde, kendisine YENİ bir rakam dizisi verildiğinde sonuç ne olmuştur ve bu ne anlama gelir?", "options": ["Kapasite yine 79 çıkmıştır; bu, kapasitenin gerçekten arttığını gösterir", "Kapasite yeniden 7'ye düşmüştür; bu, gerçek bellek kapasitesinin artmadığını, yalnızca strateji (chunking) kullanıldığını gösterir", "Katılımcı yeni diziyi de kolayca hatırlamıştır çünkü genel zeka artmıştır", "Deney sonuçsuz kalmıştır"], "correct": 1, "explanation": "Katılımcıya çalıştığı sayılar dışında yeni bir rakam dizisi verildiğinde kapasitesi yine 7'ye dönmüştür. Bu, gerçek bellek kapasitesinin artmadığını, katılımcının sadece chunking (parçalama) stratejisi kullanarak performansını artırdığını kanıtlar."}, {"difficulty": "zor", "topic": "Libet Deneyi", "question": "Libet'in geliştirilmiş deneyinde ortaya çıkan zaman sıralamasına göre, aşağıdakilerden hangisi doğru sıralamadır?", "options": ["Niyetin farkına varma → nöronal aktivite başlangıcı → hareket", "Nöronal aktivite başlangıcı (~700 ms önce) → niyetin farkına varılması (~300-350 ms önce) → hareket (0 ms)", "Hareket → nöronal aktivite → niyetin farkına varılması", "Nöronal aktivite ve niyetin farkına varılması eş zamanlı, sonra hareket"], "correct": 1, "explanation": "Libet'in deneyinde doğru zaman sıralaması: önce beyinde nöronal aktivite (hazırlık potansiyeli) hareketten yaklaşık 700 ms önce başlar, kişi niyetinin farkına yaklaşık 300-350 ms önce varır, hareket ise 0 ms'de (EMG noktası) gerçekleşir. Beyin aktivitesi niyetin bilinçli farkına varılmasından önce başlar."}, {"difficulty": "zor", "topic": "Libet Deneyi ve Özgür İrade", "question": "Libet deneyinin bulgusuna ilişkin hocanın yorumu nedir?", "options": ["Özgür irade tamamen bir illüzyondur ve hiçbir şekilde yoktur", "Niyet vardır, ancak niyet boşlukta oluşmaz; nöronal faaliyet → niyet → hareket sıralaması söz konusudur ve özgürlük biyolojik altyapı içinde gerçekleşir", "Beyin aktivitesi ile niyet arasında hiçbir ilişki yoktur", "Bulgu bilimsel olarak geçersizdir ve reddedilmelidir"], "correct": 1, "explanation": "Hocanın yorumuna göre niyet gerçekten vardır, ancak boşlukta oluşmaz; nöronal faaliyet önce başlar, sonra niyet oluşur, sonra hareket gerçekleşir. İnsan istediği zaman hareket edebilir (özgürlük vardır) ama bu özgürlüğü mümkün kılan altyapı nöronal süreçlerdir; özgürlük mutlak değil, biyolojik sistem içinde dereceli bir olgudur."}, {"difficulty": "zor", "topic": "Evrimsel Psikolojiye Eleştiriler", "question": "Evrimsel psikolojiye yöneltilen 'pan-adaptasyonizm' eleştirisi neyi ifade eder?", "options": ["Evrim teorisinin hiçbir kanıtının olmadığını", "Her davranışın ve özelliğin mutlaka bir hayatta kalma problemi çözmek için evrimleştiğini iddia etme eğilimini; oysa bazı özellikler adaptasyon değil yan ürün (by-product) olabilir", "Evrimsel psikolojinin hiçbir davranışı açıklayamadığını", "Doğal seçilimin bir amacı olduğunu"], "correct": 1, "explanation": "Pan-adaptasyonizm eleştirisi, evrimsel psikolojinin her özelliği/davranışı adaptasyon olarak açıklama eğilimine girdiğini savunur. Oysa bazı özellikler doğrudan seçilmemiş, başka bir adaptasyonun yan ürünü (by-product) olabilir; örneğin göbek kordonu bir adaptasyonken göbek deliği bir yan üründür."}, {"difficulty": "zor", "topic": "Ontogenetik vs Filogenetik Açıklama", "question": "Yükseklik korkusuna dair ontogenetik açıklama ile filogenetik açıklama arasındaki fark nedir?", "options": ["Ontogenetik açıklama bireyin kendi yaşam deneyimlerine (örn. çocukken düşme), filogenetik açıklama ise atalardan gelen evrimsel mirasa dayanır", "İkisi de aynı mekanizmayı farklı kelimelerle anlatır", "Ontogenetik açıklama evrimsel, filogenetik açıklama bireyseldir", "Filogenetik açıklama sadece hayvanlar için geçerlidir"], "correct": 0, "explanation": "Ontogenetik açıklama, bireyin kendi yaşam deneyimlerinin (örn. çocukken düşüp travma yaşaması) davranışı nasıl şekillendirdiğini inceler. Filogenetik açıklama ise atalarımızın evrimsel deneyimlerinin bugünkü davranışları (örn. çoğu insanın hiç düşmemesine rağmen yükseklikten korkması) nasıl şekillendirdiğini açıklar."}, {"difficulty": "zor", "topic": "Wason Kart Problemi", "question": "Wason kart probleminin soyut (D,F,3,7 harflerle) versiyonu ile somut (bar/yaş) versiyonu arasındaki performans farkının evrimsel psikoloji açısından yorumu nedir?", "options": ["İnsan zihni doğuştan matematiksel mantıkla ilgilenecek şekilde evrilmiştir", "Zihin soyut mantık için değil, evrimsel geçmişte var olan sosyal kuralları ve kural ihlallerini (aldatmayı) tespit etmek için evrilmiştir", "İki versiyon arasında aslında hiçbir performans farkı yoktur", "Somut versiyon her zaman daha zordur"], "correct": 1, "explanation": "İnsanların soyut versiyonda zorlanıp somut/sosyal versiyonda (kim kuralı ihlal ediyor, kim aldatıyor) çok daha başarılı olması, zihnin evrimsel geçmişte harf ve sayı gibi soyut kavramlarla değil, sosyal kuralları ve kural ihlallerini (aldatmayı) tespit etmekle karşı karşıya kaldığını ve buna uygun evrildiğini gösterir."}, {"difficulty": "zor", "topic": "Duyusal Yoksunluk", "question": "Duyusal yoksunluk deneylerinde, katılımcıların birkaç gün içinde halüsinasyon görmeye başlaması hangi temel ilkeyi göstermektedir?", "options": ["Beynin dış uyaran olmadan tamamen işlevsiz kaldığını", "Beynin uyarana muhtaç olduğunu; yeterli dış uyaran gelmediğinde kendi uyaranını üretmeye (halüsinasyon) başladığını", "Halüsinasyonların yalnızca psikiyatrik hastalıklarda görüldüğünü", "Duyusal yoksunluğun zihinsel performansı hiç etkilemediğini"], "correct": 1, "explanation": "Duyusal yoksunluk deneyleri, insan zihninin uyarana muhtaç olduğunu gösterir. Yeterli dış uyaran gelmediğinde beyin kendi uyaranını üretmeye başlar (halüsinasyonlar), davranışsal değişimler (gerginlik, huzursuzluk) ve zihinsel performans düşüşü (dikkat azalması, hata artışı) görülür."}, {"difficulty": "zor", "topic": "Retiküler Formasyon", "question": "Retiküler formasyonun temel işlevi nedir?", "options": ["Yeni anıları depolamak", "Uyarım düzeyini optimal seviyede tutmak; uyarım çok yüksekse azaltmak, çok düşükse artırmak", "Dil üretimini sağlamak", "Görsel bilgiyi işlemek"], "correct": 1, "explanation": "Retiküler formasyon beyin sapında bulunan bir yapıdır ve görevi uyarım düzeyini ayarlamaktır: uyarım çok yüksekse azaltır, çok düşükse artırır. Amaç beyni optimal uyarım düzeyinde tutmaktır. Duyusal yoksunlukta beyin yeterli uyarım alamadığı için yoksunluk belirtileri (halüsinasyonlar gibi) ortaya çıkar."}, {"difficulty": "zor", "topic": "Scarborough Deneyi ve Tavan Etkisi", "question": "Scarborough (1972) deneyinde, görsel sunumun işitsel sunuma göre daha iyi hatırlandığı sonucuna yöneltilen en önemli metodolojik eleştiri nedir?", "options": ["Örneklem büyüklüğünün yetersiz olması", "Tavan etkisinin kontrol edilmemiş olması; başlangıç performans düzeylerinin görsel ve işitsel için birbirine yakın olup olmadığının bilinmemesi", "Deneyin hiç yayınlanmamış olması", "Katılımcıların hepsinin aynı yaşta olması"], "correct": 1, "explanation": "Scarborough deneyine yöneltilen eleştiri, tavan etkisinin (ceiling effect) kontrol edilmemiş olmasıdır. Görsel ve işitsel sunumun başlangıç performans düzeylerinin birbirine yakın olup olmadığı bilinmediğinden, 18 saniyede işitselin daha az zayıflamış görünmesi yanıltıcı olabilir (baskül/kilo verme analojisindeki gibi)."}, {"difficulty": "zor", "topic": "Tek Denekli Desen", "question": "Tek denekli deneysel desende (sürekli ağlayan çocuk örneği), araştırmacının ikinci kez ağlama davranışına müdahaleyi geri çekip davranışın tekrar artıp artmadığını gözlemlemesinin amacı nedir?", "options": ["Çocuğun cezalandırılmasını sağlamak", "Davranıştaki değişimin (sönmenin) gerçekten müdahaleden mi yoksa başka bir dış faktörden mi kaynaklandığını doğrulamak", "Öğretmenin yorgunluğunu azaltmak", "Deneyin etik olmadığını göstermek"], "correct": 1, "explanation": "Sönme veya iyileşmenin gerçekten müdahaleden kaynaklandığını iddia edebilmek için, müdahalenin geri çekilip davranışın tekrar eski haline dönüp dönmediğinin gözlemlenmesi gerekir (ABAB mantığına benzer). Eğer davranış müdahale geri çekildiğinde tekrar artarsa, bu iyileşmenin gerçekten müdahaleden kaynaklandığını doğrular."}, {"difficulty": "zor", "topic": "Paul'un Deneyi ve Plasebo Kontrolü", "question": "Paul'un (1966) deneyinde plasebo grubunun eklenmesi neden deneyin geçerliliğini artırmıştır?", "options": ["Plasebo grubu deneyin maliyetini düşürdüğü için", "Plasebo grubu olmadan, iğne tedavisinin %60'lık etkisinin gerçek bir tedavi etkisinden mi yoksa içgörü/beklenti etkisinden mi kaynaklandığı ayırt edilemezdi; plasebo %73 çıkınca iğne tedavisinin aslında etkisiz olduğu anlaşılmıştır", "Plasebo grubu katılımcı sayısını azalttığı için", "Plasebo grubu deneyi kısalttığı için"], "correct": 1, "explanation": "Plasebo grubu olmadan iğne tedavisinin %60 etkili görünmesi gerçek bir tedavi etkisi sanılabilirdi. Ancak plasebo grubu eklenince plasebo etkisinin %73 olduğu görülmüş, bu da iğne tedavisinin (%60) plasebodan bile daha düşük, yani aslında etkisiz olduğunu ortaya koymuştur. Bu, plasebo kontrolünün deneysel geçerlilik açısından önemini gösterir."}, {"difficulty": "zor", "topic": "Eşik Altı Algı", "question": "Eşik altı algı ile ilgili 70 yaş üstü deneyde, 50 ms süreyle gösterilen olumsuz ya da olumlu kelimelerin bilinçli olarak fark edilmemesine rağmen bellek performansını etkilemesi neyi kanıtlar?", "options": ["Eşik altı uyarımların hiçbir etkisi olmadığını", "Uyarının bilinçli olarak fark edilmese bile sistem tarafından işlendiğini ve davranışı (bellek performansını) etkileyebildiğini", "Yaşlı bireylerin eşik altı uyarımlara duyarsız olduğunu", "50 ms sürenin bilinçli algı için yeterli olduğunu"], "correct": 1, "explanation": "Bu deney, eşik altı algı ve bilinçdışı işlemenin varlığını gösterir: kelimeler kişi tarafından bilinçli olarak fark edilemeyecek kadar kısa (50 ms) gösterilmesine rağmen, kelimelerin duygusal tonu (olumlu/olumsuz) sonraki bellek performansını etkilemiştir. Bu, sistemin uyarıyı işlediğini ama kişinin bunun farkında olmadığını gösterir."}, {"difficulty": "zor", "topic": "Clever Hans ve Bilimsel Yöntem", "question": "Clever Hans (Akıllı At) vakasında Oskar Pfungst'un yürüttüğü deney, bilimsel yöntemin hangi temel aşamalarını göstermektedir?", "options": ["Yalnızca gözlem yapılmıştır, hipotez kurulmamıştır", "Önce bir gözlem yapılmış, sonra bir açıklama (hipotez: at sahibinden ipucu alıyor) oluşturulmuş, en sonunda bu hipotez deneyle test edilmiştir", "Sadece deney yapılmış, gözlem ve hipotez aşaması atlanmıştır", "Bu vaka bilimsel yöntemle hiçbir ilgisi olmayan bir anekdottur"], "correct": 1, "explanation": "Clever Hans vakası, bilimsel yöntemin temel aşamalarını gösterir: önce gözlem yapılır (at doğru cevap veriyor gibi görünür), sonra bir hipotez kurulur (at aslında sahibinin ipuçlarından yararlanıyor), ve son olarak bu hipotez deneyle test edilir (soruyu sahibi bilmediğinde veya yabancı biri tahtayı tuttuğunda at doğru cevap veremez)."}];
+
+const letters = ["A", "B", "C", "D"];
+const container = document.getElementById("quiz-container");
+const answers = new Array(QUESTIONS.length).fill(null);
+let submitted = false;
+
+function render() {
+  container.innerHTML = "";
+  QUESTIONS.forEach((q, qi) => {
+    const card = document.createElement("div");
+    card.className = "question-card";
+    card.id = "q-" + qi;
+
+    const head = document.createElement("div");
+    head.className = "q-head";
+    const qNum = document.createElement("div");
+    qNum.className = "q-number";
+    qNum.textContent = "Soru " + (qi + 1) + " / " + QUESTIONS.length;
+    const badges = document.createElement("div");
+    badges.className = "badges";
+    const diffBadge = document.createElement("span");
+    diffBadge.className = "badge " + (q.difficulty === "zor" ? "zor" : "orta");
+    diffBadge.textContent = q.difficulty === "zor" ? "ZOR" : "ORTA";
+    const topicBadge = document.createElement("span");
+    topicBadge.className = "badge topic";
+    topicBadge.textContent = q.topic;
+    badges.appendChild(diffBadge);
+    badges.appendChild(topicBadge);
+    head.appendChild(qNum);
+    head.appendChild(badges);
+    card.appendChild(head);
+
+    const qText = document.createElement("div");
+    qText.className = "q-text";
+    qText.textContent = q.question;
+    card.appendChild(qText);
+
+    const optsWrap = document.createElement("div");
+    optsWrap.className = "options";
+
+    q.options.forEach((opt, oi) => {
+      const optDiv = document.createElement("div");
+      optDiv.className = "option";
+      optDiv.dataset.qi = qi;
+      optDiv.dataset.oi = oi;
+
+      const letterSpan = document.createElement("div");
+      letterSpan.className = "option-letter";
+      letterSpan.textContent = letters[oi];
+
+      const textSpan = document.createElement("div");
+      textSpan.className = "option-text";
+      textSpan.textContent = opt;
+
+      optDiv.appendChild(letterSpan);
+      optDiv.appendChild(textSpan);
+
+      optDiv.addEventListener("click", () => selectOption(qi, oi));
+
+      optsWrap.appendChild(optDiv);
+    });
+
+    card.appendChild(optsWrap);
+
+    const expDiv = document.createElement("div");
+    expDiv.className = "explanation";
+    expDiv.id = "exp-" + qi;
+    card.appendChild(expDiv);
+
+    container.appendChild(card);
+  });
+  updateProgress();
+}
+
+function selectOption(qi, oi) {
+  if (submitted) return;
+  answers[qi] = oi;
+  const card = document.getElementById("q-" + qi);
+  card.querySelectorAll(".option").forEach(el => {
+    el.classList.toggle("selected", parseInt(el.dataset.oi) === oi);
+  });
+  updateProgress();
+}
+
+function updateProgress() {
+  const answered = answers.filter(a => a !== null).length;
+  const pct = Math.round((answered / QUESTIONS.length) * 100);
+  document.getElementById("progress-bar-fill").style.width = pct + "%";
+  document.getElementById("progress-text").textContent = answered + " / " + QUESTIONS.length + " soru cevaplandı";
+}
+
+function gradeExam() {
+  submitted = true;
+  let correctCount = 0;
+  let ortaCorrect = 0, ortaTotal = 0, zorCorrect = 0, zorTotal = 0;
+
+  QUESTIONS.forEach((q, qi) => {
+    if (q.difficulty === "orta") ortaTotal++; else zorTotal++;
+    const card = document.getElementById("q-" + qi);
+    const userAnswer = answers[qi];
+    const isCorrect = userAnswer === q.correct;
+    if (isCorrect) {
+      correctCount++;
+      if (q.difficulty === "orta") ortaCorrect++; else zorCorrect++;
+    }
+
+    card.querySelectorAll(".option").forEach(el => {
+      const oi = parseInt(el.dataset.oi);
+      el.classList.add("locked");
+      if (oi === q.correct) {
+        el.classList.add("correct-answer");
+      } else if (oi === userAnswer && !isCorrect) {
+        el.classList.add("wrong-answer");
+      }
+    });
+
+    const expDiv = document.getElementById("exp-" + qi);
+    expDiv.classList.add("show");
+    expDiv.classList.add(isCorrect ? "correct-exp" : "wrong-exp");
+    const prefix = isCorrect ? "✓ Doğru cevap: " : "✗ Yanlış — Doğru cevap: ";
+    const correctLetterText = letters[q.correct] + ") " + q.options[q.correct];
+    expDiv.innerHTML = "<b>" + prefix + correctLetterText + "</b>" + q.explanation;
+  });
+
+  const resultsPanel = document.getElementById("results-panel");
+  resultsPanel.classList.add("show");
+  document.getElementById("score-big").textContent = correctCount + " / " + QUESTIONS.length;
+  const pct = Math.round((correctCount / QUESTIONS.length) * 100);
+  document.getElementById("score-percent").textContent = "Başarı Oranı: %" + pct;
+  document.getElementById("rb-orta").textContent = ortaCorrect + "/" + ortaTotal;
+  document.getElementById("rb-zor").textContent = zorCorrect + "/" + zorTotal;
+
+  document.getElementById("submit-btn").disabled = true;
+  resultsPanel.scrollIntoView({behavior: "smooth", block: "start"});
+}
+
+document.getElementById("submit-btn").addEventListener("click", () => {
+  const unanswered = answers.filter(a => a === null).length;
+  if (unanswered > 0) {
+    const proceed = confirm(unanswered + " soru henüz cevaplanmadı. Yine de sınavı bitirmek istiyor musunuz?");
+    if (!proceed) return;
+  }
+  gradeExam();
+});
+
+document.getElementById("reset-btn").addEventListener("click", () => {
+  location.reload();
+});
+
+render();
+</script>
+
+</body>
+</html>
